@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Diagnóstico de Alfabetização — Quiz da Gabriela Engler
 
-## Getting Started
+Quiz interativo (mobile-first) que diagnostica o nível de alfabetização da criança
+em 5 níveis e direciona para a oferta certa.
 
-First, run the development server:
+**Stack:** Next.js 16 (App Router) · React 19 · TypeScript · Tailwind v4 ·
+**Mantine** (UI) · **Tabler Icons**.
+
+## Rodar localmente
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Outros comandos:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build    # build de produção
+npm run start    # serve o build de produção
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Estrutura
 
-## Learn More
+- `src/app/Quiz.tsx` — **o quiz inteiro** (client component: 24 telas, 11 perguntas,
+  scoring, diagnóstico, páginas de venda).
+- `src/app/page.tsx` — renderiza o `<Quiz />`.
+- `src/app/layout.tsx` — `MantineProvider`, fonte DM Sans, metadados, `lang="pt-BR"`.
+- `src/theme.ts` — tema Mantine com a identidade verde da Gabriela.
+- `src/app/globals.css` — Tailwind + keyframes das animações.
+- `src/assets/` — as 5 imagens (faixas etárias + mãe/filho).
 
-To learn more about Next.js, take a look at the following resources:
+### O que usa Mantine / Tabler
+- **Mantine:** inputs (`TextInput`), botão principal (`Button`), barra de progresso
+  (`Progress`), checkboxes da autoidentificação (`Checkbox`), FAQ (`Accordion`),
+  botão voltar (`ActionIcon`).
+- **Tabler:** ícones de chevron (voltar), check (respostas) e seta (CTA).
+- O restante da UI (cards, SVGs de radar/curva, gráficos) é customizado com Tailwind +
+  estilos inline para preservar a identidade visual.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Captura de leads (Google Form)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Ao chegar na tela de projeção, o quiz envia as respostas (uma vez) para o Google Form
+**"[Gabriela] Quiz de Alfabetização"** (POST `no-cors` no `formResponse`, já conectado
+à planilha). A configuração fica em `src/app/Quiz.tsx`, bloco
+**"Integração com o Google Form"** (URL, `entry.*`, rótulos das opções e os parâmetros
+`fvv`/`pageHistory`). Não precisa de variável de ambiente.
 
-## Deploy on Vercel
+## Deploy (GitHub + Vercel)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Crie um repositório no GitHub e faça push deste projeto:
+   ```bash
+   git add -A
+   git commit -m "Quiz em Next.js + Mantine"
+   git remote add origin https://github.com/SEU_USUARIO/SEU_REPO.git
+   git push -u origin main
+   ```
+2. Em [vercel.com](https://vercel.com): **Add New → Project → Import** o repositório.
+3. A Vercel detecta Next.js automaticamente (Framework: Next.js). Sem config extra.
+   Clique em **Deploy**.
+4. Pronto: a cada `git push`, a Vercel faz deploy automático. HTTPS e domínio
+   (`*.vercel.app`) já vêm prontos; dá para ligar um domínio próprio depois.

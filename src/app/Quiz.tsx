@@ -1,0 +1,1567 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import age34 from "@/assets/age-3-4.jpg";
+import age56 from "@/assets/age-5-6.jpg";
+import age78 from "@/assets/age-7-8.jpg";
+import age9 from "@/assets/age-9-plus.jpg";
+import motherChild from "@/assets/mother-child.jpg";
+import {
+  Accordion,
+  ActionIcon,
+  Button,
+  Checkbox,
+  Progress,
+  TextInput,
+} from "@mantine/core";
+import {
+  IconArrowRight,
+  IconCheck,
+  IconChevronLeft,
+} from "@tabler/icons-react";
+
+// ===== Theme tokens =====
+const C = {
+  cream: "#fdfaf5",
+  mint: "#d6f2e0",
+  mintLight: "#f0faf4",
+  green: "#1a5c35",
+  greenMid: "#2d9957",
+  greenSoft: "#a8e0bc",
+  warm: "#6b6b60",
+  white: "#ffffff",
+  red: "#d35454",
+  redSoft: "#f5cfcf",
+};
+
+// ===== Questions =====
+type Option = { icon: string; label: string; weight: number };
+type Question = { title: string; subtitle?: string; options: Option[]; neutral?: boolean };
+
+const QUESTIONS: Question[] = [
+  {
+    title: "Seu filho reconhece as letras do alfabeto?",
+    subtitle: "Escolha a opção que mais se aproxima",
+    options: [
+      { icon: "✓", label: "Reconhece todas com facilidade", weight: 5 },
+      { icon: "~", label: "Reconhece a maioria mas confunde algumas", weight: 4 },
+      { icon: "?", label: "Reconhece poucas letras", weight: 2 },
+      { icon: "✗", label: "Ainda não reconhece nenhuma", weight: 1 },
+    ],
+  },
+  {
+    title: "Ele consegue dizer o som das letras?",
+    subtitle: "Mostre uma letra e peça o som, não o nome",
+    options: [
+      { icon: "🔊", label: "Sim, sabe o som da maioria", weight: 5 },
+      { icon: "💭", label: "Sabe o nome mas confunde com o som", weight: 3 },
+      { icon: "😕", label: "Raramente consegue", weight: 2 },
+      { icon: "✗", label: "Ainda não associa letra ao som", weight: 1 },
+    ],
+  },
+  {
+    title: "Seu filho consegue juntar sílabas para formar palavras?",
+    options: [
+      { icon: "🧩", label: "Sim, forma palavras com facilidade", weight: 5 },
+      { icon: "🐢", label: "Consegue mas é lento e trava bastante", weight: 3 },
+      { icon: "🔄", label: "Tenta mas não consegue ainda", weight: 2 },
+      { icon: "✗", label: "Ainda não chegou nessa etapa", weight: 1 },
+    ],
+  },
+  {
+    title: "O que acontece quando ele tenta ler uma palavra?",
+    options: [
+      { icon: "📖", label: "Lê com fluência e entende o que leu", weight: 5 },
+      { icon: "👆", label: "Lê devagar soletrando letra por letra", weight: 3 },
+      { icon: "😰", label: "Trava na maioria das palavras", weight: 2 },
+      { icon: "🚫", label: "Ainda não tenta ler", weight: 1 },
+    ],
+  },
+  {
+    title: "Seu filho consegue escrever palavras simples sozinho?",
+    options: [
+      { icon: "✍️", label: "Sim, escreve com poucos erros", weight: 5 },
+      { icon: "📝", label: "Escreve mas com muitos erros fonéticos", weight: 3 },
+      { icon: "👁️", label: "Consegue copiar mas não escreve sozinho", weight: 2 },
+      { icon: "✗", label: "Ainda não escreve", weight: 1 },
+    ],
+  },
+  {
+    title: "Como seu filho se relaciona com a leitura?",
+    options: [
+      { icon: "❤️", label: "Adora livros e pede para ler sempre", weight: 5 },
+      { icon: "😐", label: "Tem interesse mas desiste rápido quando trava", weight: 3 },
+      { icon: "😔", label: "Evita ler porque se frustra", weight: 2 },
+      { icon: "😶", label: "Ainda não demonstra interesse", weight: 1 },
+    ],
+  },
+  {
+    title: "Você já tentou ensinar seu filho a ler em casa?",
+    options: [
+      { icon: "⭐", label: "Sim e vejo progresso", weight: 5 },
+      { icon: "🤔", label: "Sim mas não sei se estou fazendo certo", weight: 3 },
+      { icon: "😞", label: "Tentei mas desisti", weight: 2 },
+      { icon: "🆕", label: "Ainda não tentei", weight: 1 },
+    ],
+  },
+  // Q8 — Rotina em casa
+  {
+    title: "Você tem uma rotina de estudos em casa com seu filho?",
+    options: [
+      { icon: "📅", label: "Sim, estudamos todo dia", weight: 5 },
+      { icon: "🔄", label: "Às vezes, quando sobra tempo", weight: 3 },
+      { icon: "😓", label: "Tento mas não consigo manter", weight: 2 },
+      { icon: "🚫", label: "Ainda não temos rotina", weight: 1 },
+    ],
+  },
+  // Q9 — Método fônico
+  {
+    title: "Você já conhece ou já usou a instrução fônica?",
+    options: [
+      { icon: "🏆", label: "Sim, já uso e quero me aprofundar", weight: 5 },
+      { icon: "👀", label: "Já ouvi falar mas nunca usei", weight: 3 },
+      { icon: "🔄", label: "Já tentei mas tive dificuldades", weight: 2 },
+      { icon: "🆕", label: "Nunca ouvi falar", weight: 1 },
+    ],
+  },
+  // Q10 — Escola
+  {
+    title: "Como está o desempenho do seu filho na escola em relação à leitura?",
+    options: [
+      { icon: "⭐", label: "Está indo bem, acima da turma", weight: 5 },
+      { icon: "📊", label: "Está na média da turma", weight: 3 },
+      { icon: "⚠️", label: "Está abaixo da turma", weight: 2 },
+      { icon: "🏫", label: "A escola ainda não identificou a dificuldade", weight: 1 },
+    ],
+  },
+  // Q11 — Emoção
+  {
+    title: "Como seu filho reage quando encontra dificuldade na leitura?",
+    options: [
+      { icon: "💪", label: "Persiste e tenta de novo", weight: 5 },
+      { icon: "😤", label: "Fica frustrado mas continua", weight: 3 },
+      { icon: "😢", label: "Chora ou demonstra tristeza", weight: 2 },
+      { icon: "🚪", label: "Desiste e evita tentar", weight: 1 },
+    ],
+  },
+];
+
+// ===== Screen flow =====
+type ScreenType =
+  | "age" | "social" | "benefit" | "name" | "whatsapp" | "instagram"
+  | "question" | "interstitial" | "interstitial2" | "stat"
+  | "processing" | "projection" | "result" | "sales";
+
+type Screen = { type: ScreenType; qIndex?: number };
+
+const SCREENS: Screen[] = [
+  { type: "age" },           // 0
+  { type: "social" },        // 1
+  { type: "benefit" },       // 2
+  { type: "name" },          // 3
+  { type: "whatsapp" },      // 4
+  { type: "instagram" },     // 5
+  { type: "question", qIndex: 0 },   // 6  — Q1
+  { type: "question", qIndex: 1 },   // 7  — Q2
+  { type: "interstitial" },          // 8
+  { type: "question", qIndex: 2 },   // 9  — Q3
+  { type: "question", qIndex: 3 },   // 10 — Q4
+  { type: "stat" },                  // 11
+  { type: "question", qIndex: 4 },   // 12 — Q5
+  { type: "question", qIndex: 5 },   // 13 — Q6
+  { type: "question", qIndex: 6 },   // 14 — Q7
+  { type: "question", qIndex: 7 },   // 15 — Q8
+  { type: "question", qIndex: 8 },   // 16 — Q9
+  { type: "interstitial2" },         // 17 — entre Q9 e Q10
+  { type: "question", qIndex: 9 },   // 18 — Q10
+  { type: "question", qIndex: 10 },  // 19 — Q11
+  { type: "processing" },            // 20
+  { type: "projection" },            // 21
+  { type: "result" },                // 22
+  { type: "sales" },                 // 23
+];
+
+const TOTAL_QUESTIONS = QUESTIONS.length; // 11
+
+const LEVEL_TEXTS: Record<number, { name: string; tagColor: string; diag: string; pitch: string; weeks: number }> = {
+  1: {
+    name: "Nível 1 — Pré-leitor",
+    tagColor: "#e89a8c",
+    weeks: 12,
+    diag: "Seu filho está no início da jornada. E isso é ótimo. Não há atraso — há uma oportunidade enorme de construir uma base sólida desde o começo, do jeito certo.",
+    pitch: "Na masterclass você vai aprender exatamente por onde começar, os primeiros sons que ele precisa dominar e como criar uma rotina de 15 minutos que vai funcionar desde o primeiro dia.",
+  },
+  2: {
+    name: "Nível 2 — Iniciante",
+    tagColor: "#f0b27a",
+    weeks: 10,
+    diag: "Seu filho deu o primeiro passo. Agora precisa do método certo para avançar. Reconhecer a letra não é o mesmo que saber o som dela — e essa é a etapa onde a maioria das crianças trava.",
+    pitch: "Na masterclass você vai entender o que está faltando para seu filho avançar da fase das letras para a fase da leitura.",
+  },
+  3: {
+    name: "Nível 3 — Em desenvolvimento",
+    tagColor: "#f4d35e",
+    weeks: 8,
+    diag: "Seu filho está quase lá. Ele só precisa de um empurrão no lugar certo. O desafio agora é a junção: transformar sons em sílabas e sílabas em palavras.",
+    pitch: "Na masterclass você vai aprender como guiar seu filho nessa transição com a sequência certa e atividades práticas.",
+  },
+  4: {
+    name: "Nível 4 — Leitor em progresso",
+    tagColor: "#a8e0bc",
+    weeks: 6,
+    diag: "Seu filho já lê. Agora é hora de ganhar fluidez e confiança. Ler soletrando ainda gera frustração — o próximo passo é automatizar o que ele já sabe.",
+    pitch: "Na masterclass você vai aprender como ajudar seu filho a passar de leitura lenta para uma leitura fluente.",
+  },
+  5: {
+    name: "Nível 5 — Leitor em consolidação",
+    tagColor: "#1a5c35",
+    weeks: 4,
+    diag: "Seu filho já é um leitor. Agora vamos consolidar essa habilidade. Os erros pontuais que ainda aparecem têm solução específica.",
+    pitch: "Na masterclass você vai aprender como identificar e trabalhar as lacunas específicas do seu filho.",
+  },
+};
+
+const AGE_LEVEL_TEXTS: Record<string, string> = {
+  "0-3-1": "Seu filho ainda está na fase pré-leitora — e isso é completamente normal para a idade. Crianças de 0 a 3 anos estão desenvolvendo a base que vai sustentar toda a alfabetização. O mais importante agora é estimular a audição e o vocabulário através de músicas, histórias e conversas. Você está no momento certo para começar.",
+  "0-3-2": "Para a idade do seu filho, ele já está mostrando sinais muito positivos. Reconhecer letras antes dos 4 anos é um indicativo excelente. Agora o foco é garantir que ele aprenda os sons certos de cada letra, não apenas os nomes. Esse detalhe vai fazer toda a diferença quando a leitura começar.",
+  "0-3-3": "Impressionante. Seu filho já está juntando sílabas com menos de 4 anos. Isso mostra que ele tem uma base forte e muita capacidade. O cuidado agora é não apressar — respeite o ritmo dele e garanta que cada etapa esteja bem consolidada antes de avançar.",
+  "0-3-4": "Seu filho está lendo antes dos 4 anos. Isso é extraordinário e indica um desenvolvimento muito acima da média. O próximo passo é trabalhar a fluência de forma lúdica, sem pressão, para que a leitura seja sempre uma experiência prazerosa para ele.",
+  "0-3-5": "Seu filho está lendo com consolidação antes dos 4 anos. Isso é raro e merece ser celebrado. Agora o desafio é manter o ambiente estimulante sem sobrecarregar. Livros variados, histórias em voz alta e jogos de linguagem vão nutrir esse talento de forma saudável.",
+  "4-6-1": "Seu filho está na janela ideal para começar a alfabetização. Não há atraso — há uma oportunidade enorme. Crianças que iniciam a instrução fônica entre 4 e 6 anos com uma base sólida chegam à escola lendo com confiança e muito à frente da maioria. Comece pelos sons das vogais ainda essa semana.",
+  "4-6-2": "Seu filho já reconhece as letras — um ótimo começo para a faixa etária. O próximo passo é garantir que ele aprenda o som de cada letra, não apenas o nome. Essa transição é o coração do método fônico e, quando feita certo, desbloqueia a leitura rapidamente.",
+  "4-6-3": "Seu filho está na fase mais importante da alfabetização — e no momento certo da vida para passar por ela. Ele já sabe os sons, agora precisa aprender a juntá-los. Com uma rotina de 15 minutos por dia ele vai estar lendo palavras reais em poucas semanas.",
+  "4-6-4": "Seu filho já lê entre 4 e 6 anos — isso é muito bom. O foco agora é a fluência: fazer a leitura se tornar automática e prazerosa. Leitura em voz alta todos os dias com livros no nível certo vai acelerar muito esse processo.",
+  "4-6-5": "Seu filho já é um leitor consolidado antes dos 7 anos. Você fez um trabalho incrível. Agora é hora de ampliar o repertório com livros cada vez mais ricos e estimular a compreensão do que ele lê, não apenas a decodificação.",
+  "7-9-1": "Vamos ser honestas: um filho de 7 a 9 anos ainda na fase pré-leitora precisa de atenção agora. Não é hora de esperar a escola resolver. O método fônico aplicado de forma consistente em casa tem potencial de transformar esse quadro em poucas semanas. O primeiro passo é hoje.",
+  "7-9-2": "Seu filho reconhece as letras mas ainda não associa os sons — isso é uma lacuna que precisa ser resolvida com urgência nessa faixa etária. A boa notícia é que com o método certo essa etapa costuma ser superada rapidamente. Foco nos sons antes de qualquer outra coisa.",
+  "7-9-3": "Seu filho está progredindo mas precisa acelerar o ritmo. Na faixa dos 7 a 9 anos, travar na junção das sílabas começa a impactar o desempenho escolar em todas as matérias. Uma rotina estruturada de instrução fônica vai resolver isso antes que vire um problema maior.",
+  "7-9-4": "Seu filho lê — e isso é ótimo. O desafio agora é sair da leitura soletada para uma leitura fluente, porque na faixa dos 7 a 9 anos a velocidade de leitura começa a impactar a compreensão de textos na escola. Prática diária com textos curtos é o caminho mais rápido.",
+  "7-9-5": "Seu filho está com uma base excelente para a faixa etária. Agora o foco deve ser a compreensão leitora — entender o que lê com profundidade, fazer inferências e desenvolver o pensamento crítico através dos textos.",
+  "10+-1": "Precisamos conversar com honestidade. Um filho de 10 anos ou mais ainda na fase pré-leitora tem lacunas acumuladas que precisam ser resolvidas com um método estruturado e consistente. Não é hora de julgamento — é hora de ação. O método fônico funciona em qualquer idade e pode mudar esse quadro. Mas precisa começar hoje.",
+  "10+-2": "Com 10 anos ou mais reconhecendo letras mas sem dominar os sons, há uma lacuna clara que a escola provavelmente não identificou — ou identificou mas não resolveu. O método fônico vai direto ao ponto: ensinar os sons que faltam, na sequência certa, sem enrolação. Essa base pode ser construída em semanas.",
+  "10+-3": "Seu filho já avançou bastante mas ainda trava na junção. Com 10 anos ou mais, essa dificuldade já impacta a leitura de textos escolares e a compreensão em todas as matérias. A boa notícia é que crianças mais velhas costumam avançar muito rápido quando entendem o método — porque a maturidade ajuda.",
+  "10+-4": "Seu filho lê mas ainda com dificuldade. Com 10 anos ou mais, a fluência de leitura é essencial para acompanhar o conteúdo escolar com tranquilidade. O foco agora é consolidar o que ele já sabe e eliminar os travamentos que ainda aparecem — isso é totalmente possível com uma rotina estruturada.",
+  "10+-5": "Seu filho tem uma base sólida de leitura. Com 10 anos ou mais nesse nível, o próximo passo é desenvolver a leitura crítica e a interpretação de textos mais complexos. Isso vai fazer diferença não só na escola, mas na vida inteira dele.",
+};
+
+// Score range: 11..55 (Q8 is neutral)
+function levelFromScore(s: number): number {
+  if (s <= 21) return 1;
+  if (s <= 32) return 2;
+  if (s <= 42) return 3;
+  if (s <= 49) return 4;
+  return 5;
+}
+
+function futureDateInWeeks(weeks: number) {
+  const d = new Date();
+  d.setDate(d.getDate() + weeks * 7);
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+}
+
+// ===== Integração com o Google Form =====
+// "[Gabriela] Quiz de Alfabetização" — envia as respostas direto para o formResponse.
+const GFORM_ACTION =
+  "https://docs.google.com/forms/d/e/1FAIpQLSdB1KDfdoBT0wlFM-DwgU0sXAOswgaVQfnPv1j2cgqRZCePGQ/formResponse";
+
+const GFORM_NAME_ENTRY = "entry.436572937";
+const GFORM_WHATSAPP_ENTRY = "entry.1994528083";
+const GFORM_INSTAGRAM_ENTRY = "entry.417671479";
+const GFORM_AGE_ENTRY = "entry.295870184";
+
+const GFORM_AGE_LABELS: Record<string, string> = {
+  "0-3": "0 a 3 anos",
+  "4-6": "4 a 6 anos",
+  "7-9": "7 a 9 anos",
+  "10+": "10 anos ou mais",
+};
+
+// entry ID de cada pergunta, na MESMA ordem do array QUESTIONS (Q1..Q11)
+const GFORM_QUESTION_ENTRIES = [
+  "entry.383983556",  // Q1
+  "entry.1045847043", // Q2
+  "entry.1796058230", // Q3
+  "entry.481178193",  // Q4
+  "entry.1251249363", // Q5
+  "entry.121372732",  // Q6
+  "entry.1319803792", // Q7
+  "entry.1989111527", // Q8
+  "entry.487380243",  // Q9
+  "entry.1739913752", // Q10
+  "entry.840126877",  // Q11
+];
+
+// Rótulos EXATOS das opções no Google Form, na mesma ordem das opções do quiz.
+// (alguns diferem levemente dos textos exibidos no quiz; o Form exige correspondência exata)
+const GFORM_OPTION_LABELS: string[][] = [
+  ["Reconhece todas com facilidade", "Reconhece a maioria mas confunde algumas", "Reconhece poucas letras", "Ainda não reconhece nenhuma"],
+  ["Sim, sabe o som da maioria", "Sabe o nome mas confunde o som", "Raramente consegue", "Ainda não associa a letra ao som"],
+  ["Sim, forma palavras com facilidade", "Consegue mas é lento e trava bastante", "Tenta mas não consegue ainda", "Ainda não chegou nessa etapa"],
+  ["Lê com fluência e entende o que leu", "Lê devagar soletrando letra por letra", "Trava na maioria das palavras", "Ainda não tenta ler"],
+  ["Sim, escreve com poucos erros", "Escreve mas com muitos erros fonéticos", "Consegue copiar mas não escreve sozinho", "Ainda não escreve"],
+  ["Adora livros e pede para ler sempre", "Tem interesse mas desiste rápido quando trava", "Evita ler porque se frustra", "Ainda não demonstra interesse"],
+  ["Sim e vejo progresso", "Sim, mas não sei se estou fazendo certo", "Tentei, mas desisti", "Ainda não tentei"],
+  ["Sim, estudamos todo dia", "Às vezes, quando sobra tempo", "Tento mas não consigo manter", "Ainda não temos rotina"],
+  ["Sim, já uso e quero me aprofundar", "Já ouvi falar mas nunca usei", "Já tentei mas tive dificuldades", "Nunca ouvi falar"],
+  ["Está indo bem, acima da turma", "Está na média da turma", "Está abaixo da turma", "A escola ainda não identificou a dificuldade"],
+  ["Persiste e tenta de novo", "Fica frustrado mas continua", "Chora ou demonstra tristeza", "Desiste e evita tentar"],
+];
+
+// Telas intermediárias "Continuar" do form (enviadas por garantia, caso obrigatórias)
+const GFORM_INFO_ENTRIES = ["entry.1852189790", "entry.1457234374", "entry.982306383", "entry.157665875"];
+
+// ===== Main =====
+export default function QuizPage() {
+  const [step, setStep] = useState(0);
+  const [direction, setDirection] = useState<1 | -1>(1);
+  const [age, setAge] = useState("");
+  const [name, setName] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [instagram, setInstagram] = useState("");
+  const [answers, setAnswers] = useState<Record<number, number>>({});
+
+  const screen = SCREENS[step];
+
+  // Progress: counts question screens (1..12)
+  const currentQuestionNumber =
+    screen.type === "question" && typeof screen.qIndex === "number" ? screen.qIndex + 1 : 0;
+  const progress = (currentQuestionNumber / TOTAL_QUESTIONS) * 100;
+  const showProgress = screen.type === "question";
+
+  const goNext = () => {
+    setDirection(1);
+    setStep((s) => Math.min(s + 1, SCREENS.length - 1));
+  };
+  const goBack = () => {
+    setDirection(-1);
+    setStep((s) => Math.max(s - 1, 0));
+  };
+
+  // Envia as respostas ao Google Form ao chegar na tela de projeção (uma única vez)
+  const [submitted, setSubmitted] = useState(false);
+  useEffect(() => {
+    if (screen.type !== "projection" || submitted) return;
+    setSubmitted(true);
+    try {
+      const params = new URLSearchParams();
+      if (name) params.append(GFORM_NAME_ENTRY, name);
+      if (whatsapp) params.append(GFORM_WHATSAPP_ENTRY, whatsapp);
+      if (instagram) params.append(GFORM_INSTAGRAM_ENTRY, instagram);
+      if (GFORM_AGE_LABELS[age]) params.append(GFORM_AGE_ENTRY, GFORM_AGE_LABELS[age]);
+      GFORM_QUESTION_ENTRIES.forEach((entryId, qi) => {
+        const weight = answers[qi];
+        if (weight === undefined) return;
+        const optIdx = QUESTIONS[qi].options.findIndex((o) => o.weight === weight);
+        const label = GFORM_OPTION_LABELS[qi]?.[optIdx];
+        if (label) params.append(entryId, label);
+      });
+      GFORM_INFO_ENTRIES.forEach((e) => params.append(e, "Continuar"));
+      // Necessário p/ o Google Forms não descartar a última resposta em página única
+      params.append("fvv", "1");
+      params.append("pageHistory", "0");
+      fetch(GFORM_ACTION, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: params.toString(),
+      }).catch(() => {});
+    } catch {
+      /* envio é silencioso; não bloqueia o quiz */
+    }
+  }, [screen.type, submitted, age, name, whatsapp, instagram, answers]);
+
+  const canAdvance = useMemo(() => {
+    switch (screen.type) {
+      case "name": return name.trim().length >= 2;
+      case "whatsapp": return whatsapp.replace(/\D/g, "").length >= 10;
+      case "instagram": return instagram.trim().length >= 2;
+      case "question": return answers[screen.qIndex!] !== undefined;
+      default: return true;
+    }
+  }, [screen, name, whatsapp, instagram, answers]);
+
+  const selectAge = (a: string) => {
+    setAge(a);
+    setTimeout(goNext, 250);
+  };
+  const selectAnswer = (qIdx: number, weight: number) => {
+    setAnswers((prev) => ({ ...prev, [qIdx]: weight }));
+    setTimeout(goNext, 350);
+  };
+
+  useEffect(() => {
+    if (screen.type === "processing") {
+      const t = setTimeout(goNext, 4200);
+      return () => clearTimeout(t);
+    }
+  }, [screen.type]);
+
+  // Total score: sum of all scoring answers (Q8 weights are 0 so safe to include)
+  const totalScore = useMemo(
+    () => Object.entries(answers).reduce((sum, [k, v]) => {
+      const i = Number(k);
+      if (QUESTIONS[i]?.neutral) return sum;
+      return sum + v;
+    }, 0),
+    [answers]
+  );
+  const level = levelFromScore(totalScore || 11);
+
+  const showFooter = [
+    "social", "benefit", "name", "whatsapp", "instagram",
+    "interstitial", "interstitial2", "stat", "projection", "result",
+  ].includes(screen.type);
+  const showBack = step > 0 && screen.type !== "processing" && screen.type !== "sales";
+
+  return (
+    <div
+      style={{ background: C.cream, color: C.warm }}
+      className="fixed inset-0 overflow-hidden flex flex-col"
+    >
+      <div className="relative shrink-0" style={{ paddingTop: "env(safe-area-inset-top)" }}>
+        <div className="h-14 flex items-center justify-between px-4">
+          {showBack ? (
+            <ActionIcon
+              onClick={goBack}
+              aria-label="Voltar"
+              variant="subtle"
+              radius="xl"
+              size="lg"
+              color="brand"
+            >
+              <IconChevronLeft size={24} stroke={2.5} />
+            </ActionIcon>
+          ) : <div className="w-10 h-10" />}
+          <div className="text-xs font-semibold tracking-wider" style={{ color: C.green }}>
+            ALFABETIZAR
+          </div>
+          {showProgress ? (
+            <div className="text-xs font-bold tabular-nums" style={{ color: C.greenMid }}>
+              {currentQuestionNumber}/{TOTAL_QUESTIONS}
+            </div>
+          ) : <div className="w-10 h-10" />}
+        </div>
+        <div className="mx-4">
+          {showProgress && (
+            <Progress value={progress} color="brand" size="sm" radius="xl" transitionDuration={500} />
+          )}
+        </div>
+      </div>
+
+      <div className="flex-1 relative overflow-hidden">
+        <div
+          key={step}
+          className="absolute inset-0 overflow-y-auto"
+          style={{
+            animation: `${direction === 1 ? "slideInRight" : "slideInLeft"} 0.42s cubic-bezier(0.22,1,0.36,1)`,
+          }}
+        >
+          <ScreenContent
+            screen={screen}
+            age={age} onSelectAge={selectAge}
+            name={name} setName={setName}
+            whatsapp={whatsapp} setWhatsapp={setWhatsapp}
+            instagram={instagram} setInstagram={setInstagram}
+            answers={answers} onSelectAnswer={selectAnswer}
+            totalScore={totalScore} level={level}
+            qIndex={screen.qIndex}
+            goNext={goNext}
+          />
+        </div>
+      </div>
+
+      {showFooter && (
+        <div
+          className="shrink-0 px-4 pt-3 pb-5"
+          style={{
+            paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)",
+            background: `linear-gradient(to top, ${C.cream} 60%, transparent)`,
+          }}
+        >
+          <Button
+            onClick={goNext}
+            disabled={!canAdvance}
+            fullWidth
+            size="lg"
+            radius="xl"
+            color="brand"
+            rightSection={<IconArrowRight size={20} />}
+          >
+            {screen.type === "interstitial2" ? "Entendi"
+              : screen.type === "projection" ? "Ver meu diagnóstico completo"
+              : screen.type === "result" ? "Ver o próximo passo"
+              : "Continuar"}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ===== Router =====
+function ScreenContent(props: any) {
+  const { screen } = props;
+  switch (screen.type) {
+    case "age": return <AgeScreen onSelect={props.onSelectAge} selected={props.age} />;
+    case "social": return <SocialScreen />;
+    case "benefit": return <BenefitScreen />;
+    case "name": return <NameScreen value={props.name} onChange={props.setName} />;
+    case "whatsapp": return <WhatsappScreen value={props.whatsapp} onChange={props.setWhatsapp} />;
+    case "instagram": return <InstagramScreen value={props.instagram} onChange={props.setInstagram} />;
+    case "question": return (
+      <QuestionScreen
+        qIndex={props.qIndex}
+        selected={props.answers[props.qIndex]}
+        onSelect={(w: number) => props.onSelectAnswer(props.qIndex, w)}
+      />
+    );
+    case "interstitial": return <InterstitialScreen />;
+    case "interstitial2": return <Interstitial2Screen />;
+    case "stat": return <StatScreen />;
+    case "processing": return <ProcessingScreen name={props.name} />;
+    case "projection": return <ProjectionScreen level={props.level} />;
+    case "result": return <ResultScreen name={props.name} level={props.level} answers={props.answers} age={props.age} />;
+    case "sales": return props.level === 1 ? <SalesScreenL1 name={props.name} /> : <SalesScreen />;
+    default: return null;
+  }
+}
+
+function H1({ children, style }: any) {
+  return <h1 className="text-3xl md:text-4xl font-bold leading-tight tracking-tight" style={{ color: C.green, ...style }}>{children}</h1>;
+}
+
+// ===== Screens =====
+function AgeScreen({ onSelect, selected }: { onSelect: (s: string) => void; selected: string }) {
+  const cards = [
+    { id: "0-3", label: "0 a 3 anos", img: age34 },
+    { id: "4-6", label: "4 a 6 anos", img: age56 },
+    { id: "7-9", label: "7 a 9 anos", img: age78 },
+    { id: "10+", label: "10 anos ou mais", img: age9 },
+  ];
+  return (
+    <div className="min-h-full px-5 pt-2 pb-8 flex flex-col">
+      <div className="text-center mb-2">
+        <H1>DIAGNÓSTICO DE ALFABETIZAÇÃO</H1>
+        <p className="mt-2 text-sm uppercase tracking-widest" style={{ color: C.warm }}>para o seu filho</p>
+      </div>
+      <div className="grid grid-cols-2 gap-3 mt-6">
+        {cards.map((c) => (
+          <button
+            key={c.id}
+            onClick={() => onSelect(c.id)}
+            className="relative aspect-[3/4] rounded-3xl overflow-hidden transition active:scale-[0.97]"
+            style={{
+              boxShadow: selected === c.id ? `0 0 0 3px ${C.green}` : `0 8px 24px -12px rgba(26,92,53,0.25)`,
+            }}
+          >
+            <img src={c.img.src} alt={c.label} className="w-full h-full object-cover" loading="lazy" />
+            <div className="absolute bottom-2 left-2 right-2 rounded-2xl px-3 py-2.5 flex items-center justify-between" style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(6px)" }}>
+              <span className="font-bold text-sm" style={{ color: C.green }}>{c.label}</span>
+              <span style={{ color: C.greenMid }}>›</span>
+            </div>
+          </button>
+        ))}
+      </div>
+      <p className="text-xs text-center mt-6" style={{ color: C.warm }}>
+        Ao continuar, você aceita nossos <u>Termos de uso</u> e <u>Política de privacidade</u>.
+      </p>
+    </div>
+  );
+}
+
+function SocialScreen() {
+  return (
+    <div className="min-h-full px-5 py-6 flex flex-col" style={{ background: C.mint }}>
+      <div className="flex-1 flex flex-col justify-center gap-6 max-w-xl mx-auto w-full">
+        <div>
+          <div className="text-6xl md:text-7xl font-bold leading-none" style={{ color: C.green }}>200.000+</div>
+          <div className="mt-3 text-xl font-bold" style={{ color: C.green }}>mães brasileiras</div>
+          <p className="mt-2 text-base" style={{ color: C.warm }}>
+            já aplicaram o método fônico em casa e viram resultados na primeira semana.
+          </p>
+        </div>
+        <div className="rounded-3xl overflow-hidden bg-white shadow-lg">
+          <img src={motherChild.src} alt="Mãe e filho lendo juntos" className="w-full h-56 object-cover" loading="lazy" />
+        </div>
+        <div className="text-center">
+          <p className="text-xs uppercase tracking-widest mb-2" style={{ color: C.warm }}>Como aparece em</p>
+          <div className="flex justify-center gap-4 text-sm font-bold" style={{ color: C.green }}>
+            <span>G1</span><span>·</span><span>UOL Educação</span><span>·</span><span>Nova Escola</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BenefitScreen() {
+  return (
+    <div className="min-h-full px-5 py-6 flex flex-col">
+      <div className="flex-1 flex flex-col justify-center gap-8 max-w-xl mx-auto w-full">
+        <div>
+          <H1>Seu filho vai aprender a ler do jeito certo!</H1>
+          <p className="mt-4 text-base" style={{ color: C.warm }}>
+            A instrução fônica vai desenvolver a leitura do seu filho de forma sistemática e progressiva.
+          </p>
+          <p className="mt-3 text-base font-bold" style={{ color: C.green }}>
+            Vamos montar um diagnóstico personalizado para o seu filho.
+          </p>
+        </div>
+        <div className="mx-auto w-full max-w-xs">
+          <div className="rounded-[2.5rem] p-2 shadow-2xl" style={{ background: C.green }}>
+            <div className="rounded-[2rem] p-5" style={{ background: C.cream }}>
+              <div className="text-xs font-bold mb-2" style={{ color: C.greenMid }}>SEU DIAGNÓSTICO</div>
+              <div className="text-2xl font-bold" style={{ color: C.green }}>Nível 3</div>
+              <div className="text-xs mb-3" style={{ color: C.warm }}>Em desenvolvimento</div>
+              <div className="space-y-2">
+                {[78, 64, 52, 70].map((v, i) => (
+                  <div key={i}>
+                    <div className="h-2 rounded-full overflow-hidden" style={{ background: C.mintLight }}>
+                      <div className="h-full rounded-full" style={{ width: `${v}%`, background: C.greenMid }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 h-20 rounded-xl flex items-end gap-1 p-2" style={{ background: C.mintLight }}>
+                {[40, 60, 30, 75, 55, 80, 65].map((h, i) => (
+                  <div key={i} className="flex-1 rounded-t" style={{ height: `${h}%`, background: C.green }} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NameScreen({ value, onChange }: any) {
+  return (
+    <div className="min-h-full px-5 py-10 flex flex-col">
+      <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
+        <H1 style={{ textAlign: "center" }}>Como posso te chamar?</H1>
+        <TextInput
+          autoFocus
+          value={value}
+          onChange={(e) => onChange(e.currentTarget.value)}
+          placeholder="Seu nome"
+          size="lg"
+          radius="md"
+          mt="xl"
+        />
+      </div>
+    </div>
+  );
+}
+
+function maskPhone(v: string) {
+  const d = v.replace(/\D/g, "").slice(0, 11);
+  if (d.length <= 2) return d.length ? `(${d}` : "";
+  if (d.length <= 7) return `(${d.slice(0,2)}) ${d.slice(2)}`;
+  return `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
+}
+
+function WhatsappScreen({ value, onChange }: any) {
+  return (
+    <div className="min-h-full px-5 py-10 flex flex-col">
+      <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
+        <H1 style={{ textAlign: "center" }}>Qual é o seu WhatsApp?</H1>
+        <p className="text-sm text-center mt-2" style={{ color: C.warm }}>Vou enviar o diagnóstico completo por aqui.</p>
+        <TextInput
+          inputMode="numeric"
+          value={value}
+          onChange={(e) => onChange(maskPhone(e.currentTarget.value))}
+          placeholder="(XX) XXXXX-XXXX"
+          size="lg"
+          radius="md"
+          mt="xl"
+        />
+      </div>
+    </div>
+  );
+}
+
+function InstagramScreen({ value, onChange }: any) {
+  return (
+    <div className="min-h-full px-5 py-10 flex flex-col">
+      <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
+        <H1 style={{ textAlign: "center" }}>Qual é o seu Instagram?</H1>
+        <TextInput
+          value={value}
+          onChange={(e) => onChange(e.currentTarget.value)}
+          placeholder="@seuinstagram"
+          size="lg"
+          radius="md"
+          mt="xl"
+        />
+      </div>
+    </div>
+  );
+}
+
+function QuestionScreen({ qIndex, selected, onSelect }: { qIndex: number; selected?: number; onSelect: (w: number) => void }) {
+  const q = QUESTIONS[qIndex];
+  return (
+    <div className="min-h-full px-5 pt-4 pb-24 flex flex-col">
+      <div className="max-w-xl mx-auto w-full">
+        <div className="text-xs font-bold tracking-wider mb-3" style={{ color: C.greenMid }}>
+          PERGUNTA {qIndex + 1} DE {TOTAL_QUESTIONS}
+        </div>
+        <H1>{q.title}</H1>
+        {q.subtitle && <p className="mt-2 text-base" style={{ color: C.warm }}>{q.subtitle}</p>}
+        <div className="mt-6 space-y-3">
+          {q.options.map((opt, i) => {
+            // Neutral question stores option index (since all weights are 0)
+            const sel = q.neutral ? (selected === i) : (selected === opt.weight);
+            return (
+              <button
+                key={i}
+                onClick={() => onSelect(q.neutral ? i : opt.weight)}
+                className="w-full text-left rounded-2xl p-4 flex items-center gap-4 transition active:scale-[0.985]"
+                style={{
+                  background: sel ? C.mint : C.white,
+                  border: `2px solid ${sel ? C.green : C.greenSoft}`,
+                  boxShadow: sel ? `0 8px 20px -10px ${C.green}` : `0 4px 14px -10px rgba(26,92,53,0.2)`,
+                }}
+              >
+                <div
+                  className="w-11 h-11 rounded-full flex items-center justify-center text-lg shrink-0"
+                  style={{ background: sel ? C.white : C.mintLight, color: C.green }}
+                >
+                  {opt.icon}
+                </div>
+                <div className="flex-1 font-semibold text-[15px] leading-snug" style={{ color: C.green }}>
+                  {opt.label}
+                </div>
+                <div
+                  className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition"
+                  style={{
+                    background: sel ? C.green : "transparent",
+                    border: `2px solid ${sel ? C.green : C.greenSoft}`,
+                  }}
+                >
+                  {sel && <IconCheck size={14} color="white" stroke={3} />}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InterstitialScreen() {
+  return (
+    <div className="min-h-full px-5 py-10 flex items-center justify-center" style={{ background: C.mint }}>
+      <div className="rounded-3xl bg-white p-6 max-w-md w-full" style={{ boxShadow: `0 20px 50px -20px rgba(26,92,53,0.3)` }}>
+        <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: C.mint }}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21h6M12 3a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2v.3h6v-.3c0-.8.4-1.5 1-2A7 7 0 0 0 12 3z"/></svg>
+        </div>
+        <span className="inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wider" style={{ background: C.green, color: C.white }}>VOCÊ SABIA?</span>
+        <h2 className="text-2xl font-bold mt-3" style={{ color: C.green }}>
+          Saber o nome da letra é diferente de saber o som.
+        </h2>
+        <p className="mt-3 text-base" style={{ color: C.warm }}>
+          O "M" não se chama "éme". Ele faz o som "mmm". Essa confusão é a principal causa de dificuldade na leitura.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function Interstitial2Screen() {
+  return (
+    <div className="min-h-full px-5 py-10 flex items-center justify-center" style={{ background: C.mint }}>
+      <div className="rounded-3xl bg-white p-6 max-w-md w-full" style={{ boxShadow: `0 20px 50px -20px rgba(26,92,53,0.3)` }}>
+        <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: C.mint }}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2h-4v-7H10v7H5a2 2 0 0 1-2-2V10z"/>
+          </svg>
+        </div>
+        <span className="inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wider" style={{ background: C.green, color: C.white }}>VOCÊ SABIA?</span>
+        <h2 className="text-2xl font-bold mt-3" style={{ color: C.green }}>
+          A escola sozinha pode não ser suficiente.
+        </h2>
+        <p className="mt-3 text-base" style={{ color: C.warm }}>
+          Pesquisas mostram que crianças cujos pais se envolvem ativamente na alfabetização aprendem a ler muito mais rápido. 15 minutos por dia em casa fazem toda a diferença.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function StatScreen() {
+  const [pct, setPct] = useState(0);
+  useEffect(() => {
+    let raf = 0;
+    const start = performance.now();
+    const tick = (t: number) => {
+      const p = Math.min((t - start) / 1500, 1);
+      setPct(Math.round(p * 56));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  const angle = (pct / 100) * 360;
+  return (
+    <div className="min-h-full px-5 py-8 flex flex-col" style={{ background: C.mint }}>
+      <div className="flex-1 flex flex-col justify-center gap-6 max-w-xl mx-auto w-full">
+        <div>
+          <div className="text-7xl md:text-8xl font-bold leading-none" style={{ color: C.green }}>{pct}%</div>
+          <div className="mt-3 text-xl font-bold" style={{ color: C.green }}>das crianças do 2º ano</div>
+          <p className="mt-2 text-base" style={{ color: C.warm }}>não foram alfabetizadas na faixa etária esperada no Brasil.</p>
+          <p className="mt-1 text-xs" style={{ color: C.warm }}>Fonte: Agência Brasil, 2024</p>
+        </div>
+        <div className="flex items-center justify-center gap-6">
+          <div
+            className="w-40 h-40 rounded-full"
+            style={{
+              background: `conic-gradient(#d97766 ${angle}deg, ${C.greenMid} ${angle}deg)`,
+              transition: "background 0.1s linear",
+            }}
+          >
+            <div className="w-full h-full rounded-full flex items-center justify-center">
+              <div className="w-20 h-20 rounded-full" style={{ background: C.mint }} />
+            </div>
+          </div>
+          <div className="text-sm space-y-2" style={{ color: C.green }}>
+            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded" style={{ background: "#d97766" }}/>Não alfabetizadas</div>
+            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded" style={{ background: C.greenMid }}/>Alfabetizadas</div>
+          </div>
+        </div>
+        <p className="text-center text-base font-semibold" style={{ color: C.green }}>
+          Seu diagnóstico vai ajudar a garantir que seu filho não faça parte dessa estatística.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ProcessingScreen({ name }: { name: string }) {
+  const messages = [
+    "Analisando as respostas...",
+    `Calculando o nível de ${name || "seu filho"}...`,
+    "Construindo o diagnóstico...",
+    "Quase pronto...",
+  ];
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setIdx((i) => Math.min(i + 1, messages.length - 1)), 1000);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <div className="min-h-full flex flex-col items-center justify-center px-5" style={{ background: C.mint }}>
+      <div className="relative w-40 h-40 flex items-center justify-center">
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className="absolute inset-0 rounded-full border-2"
+            style={{
+              borderColor: C.green,
+              animation: `pulseRing 2s ease-out ${i * 0.6}s infinite`,
+              opacity: 0,
+            }}
+          />
+        ))}
+        <div className="w-16 h-16 rounded-full" style={{ background: C.green }} />
+      </div>
+      <div key={idx} className="mt-10 text-lg font-semibold text-center" style={{ color: C.green, animation: "fadeInUp 0.5s ease" }}>
+        {messages[idx]}
+      </div>
+    </div>
+  );
+}
+
+// ===== Screen 17 — Projeção =====
+function ProjectionScreen({ level }: { level: number }) {
+  const info = LEVEL_TEXTS[level];
+  const dateLabel = futureDateInWeeks(info.weeks);
+  // Starting level percentage based on level
+  const startPct = [15, 30, 50, 65, 80][level - 1] ?? 30;
+  return (
+    <div className="min-h-full px-5 pt-4 pb-8">
+      <div className="max-w-xl mx-auto space-y-5">
+        <H1>O diagnóstico do seu filho está pronto.</H1>
+        <p className="text-base" style={{ color: C.warm }}>Prevemos que seu filho vai estar lendo com fluência em:</p>
+        <div className="text-3xl md:text-4xl font-bold" style={{ color: C.green }}>
+          {info.weeks} semanas
+          <div className="text-base font-semibold mt-1" style={{ color: C.greenMid }}>{dateLabel}*</div>
+        </div>
+
+        <div className="rounded-3xl bg-white p-5" style={{ border: `2px solid ${C.mint}`, boxShadow: `0 20px 40px -24px rgba(26,92,53,0.25)` }}>
+          <ProgressCurve startPct={startPct} weeks={info.weeks} />
+          <div className="flex justify-between text-xs mt-2" style={{ color: C.warm }}>
+            <span>Agora</span>
+            <span>Meta</span>
+          </div>
+        </div>
+
+        <p className="text-xs" style={{ color: C.warm }}>
+          *Este gráfico é apenas ilustrativo. O progresso real depende da consistência da rotina em casa.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ProgressCurve({ startPct, weeks }: { startPct: number; weeks: number }) {
+  const W = 320, H = 180, P = 28;
+  const x0 = P, x1 = W - P, y0 = H - P, y1 = P;
+  const startY = y0 - ((startPct / 100) * (y0 - y1));
+  // Cubic bezier rising
+  const cx1 = x0 + (x1 - x0) * 0.4;
+  const cy1 = startY;
+  const cx2 = x0 + (x1 - x0) * 0.6;
+  const cy2 = y1 + 10;
+  const path = `M ${x0} ${startY} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x1} ${y1}`;
+  const area = `${path} L ${x1} ${y0} L ${x0} ${y0} Z`;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full">
+      <defs>
+        <linearGradient id="curveGrad" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0%" stopColor="#d97766" />
+          <stop offset="50%" stopColor="#f0b27a" />
+          <stop offset="100%" stopColor={C.green} />
+        </linearGradient>
+        <linearGradient id="areaGrad" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor={C.greenMid} stopOpacity="0.35" />
+          <stop offset="100%" stopColor={C.greenMid} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      {/* grid */}
+      {[0, 1, 2, 3].map((i) => (
+        <line key={i} x1={x0} x2={x1} y1={y0 - (i * (y0 - y1)) / 3} y2={y0 - (i * (y0 - y1)) / 3} stroke={C.mintLight} strokeWidth="1" />
+      ))}
+      <path d={area} fill="url(#areaGrad)" />
+      <path d={path} fill="none" stroke="url(#curveGrad)" strokeWidth="3" strokeLinecap="round" />
+      {/* start point */}
+      <circle cx={x0} cy={startY} r="6" fill="#d97766" stroke="white" strokeWidth="2" />
+      <g>
+        <rect x={x0 + 8} y={startY - 26} width="62" height="20" rx="6" fill="white" stroke={C.mint} />
+        <text x={x0 + 39} y={startY - 12} fontSize="10" textAnchor="middle" fill={C.warm}>{startPct}%</text>
+      </g>
+      {/* end point */}
+      <circle cx={x1} cy={y1} r="6" fill={C.green} stroke="white" strokeWidth="2" />
+      <g>
+        <rect x={x1 - 86} y={y1 - 4} width="80" height="20" rx="6" fill="white" stroke={C.mint} />
+        <text x={x1 - 46} y={y1 + 10} fontSize="10" textAnchor="middle" fill={C.green} fontWeight="700">Leitura fluente</text>
+      </g>
+      {/* x labels */}
+      <text x={x0} y={H - 6} fontSize="9" fill={C.warm}>hoje</text>
+      <text x={x1} y={H - 6} fontSize="9" fill={C.warm} textAnchor="end">+{weeks} sem</text>
+    </svg>
+  );
+}
+
+// ===== Screen 18 — Resultado personalizado =====
+function ResultScreen({ name, level, answers, age }: { name: string; level: number; answers: Record<number, number>; age: string }) {
+  const info = LEVEL_TEXTS[level];
+  const firstName = (name || "Olá").split(" ")[0];
+  const ageText = AGE_LEVEL_TEXTS[`${age}-${level}`] || "";
+  // Radar 6 axes
+  const skills = [
+    { label: "Letras", value: ((answers[0] ?? 1) / 5) * 0.9 },
+    { label: "Sons", value: ((answers[1] ?? 1) / 5) * 0.9 },
+    { label: "Sílabas", value: ((answers[2] ?? 1) / 5) * 0.9 },
+    { label: "Fluência", value: ((answers[3] ?? 1) / 5) * 0.9 },
+    { label: "Rotina", value: ((answers[7] ?? 1) / 5) * 0.9 },
+    { label: "Emoção", value: ((answers[10] ?? 1) / 5) * 0.9 },
+  ];
+  const startPct = [15, 30, 50, 65, 80][level - 1] ?? 30;
+
+  return (
+    <div className="min-h-full px-5 pt-4 pb-8">
+      <div className="max-w-xl mx-auto space-y-5">
+        <div className="text-2xl md:text-3xl font-bold" style={{ color: C.greenMid }}>{firstName},</div>
+        <H1>seu diagnóstico de alfabetização está pronto!</H1>
+
+        <div className="inline-block px-4 py-1.5 rounded-full text-xs font-bold tracking-wider" style={{ background: info.tagColor, color: level >= 5 ? C.white : C.green }}>
+          {info.name.toUpperCase()}
+        </div>
+
+        <div className="rounded-3xl bg-white p-5" style={{ border: `2px solid ${C.mint}`, boxShadow: `0 12px 30px -20px rgba(26,92,53,0.25)` }}>
+          <div className="text-xs font-semibold mb-2" style={{ color: C.warm }}>Progresso previsto da leitura</div>
+          <ProgressCurve startPct={startPct} weeks={info.weeks} />
+          <ul className="mt-4 space-y-2 text-sm" style={{ color: C.green }}>
+            <li className="flex items-center gap-3"><span>👍</span><span>Nível identificado: <strong>{info.name.split("—")[1]?.trim() || info.name}</strong></span></li>
+            <li className="flex items-center gap-3"><span>📋</span><span>Personalizado com base nas suas respostas</span></li>
+            <li className="flex items-center gap-3"><span>🎯</span><span>Meta: leitura fluente em <strong>{info.weeks} semanas</strong></span></li>
+          </ul>
+          <p className="text-xs mt-3" style={{ color: C.warm }}>Este gráfico é apenas ilustrativo.</p>
+        </div>
+
+        <div className="rounded-3xl bg-white p-5" style={{ border: `2px solid ${C.mint}` }}>
+          <p style={{ color: C.warm }} className="leading-relaxed">{info.diag}</p>
+        </div>
+
+        {ageText && (
+          <div className="rounded-3xl p-5" style={{ background: C.mintLight, border: `2px solid ${C.mint}` }}>
+            <p className="text-sm font-medium leading-relaxed" style={{ color: C.green }}>{ageText}</p>
+          </div>
+        )}
+
+        <div className="rounded-3xl bg-white p-5" style={{ border: `2px solid ${C.mint}` }}>
+          <h3 className="font-bold mb-3" style={{ color: C.green }}>Habilidades do seu filho</h3>
+          <Radar data={skills} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Radar({ data }: { data: { label: string; value: number }[] }) {
+  const cx = 130, cy = 130, R = 90;
+  const n = data.length;
+  const pt = (i: number, v: number) => {
+    const a = -Math.PI / 2 + (i * 2 * Math.PI) / n;
+    return [cx + Math.cos(a) * R * v, cy + Math.sin(a) * R * v];
+  };
+  const poly = data.map((d, i) => pt(i, d.value).join(",")).join(" ");
+  return (
+    <svg viewBox="0 0 260 260" className="w-full max-w-xs mx-auto">
+      {[0.25, 0.5, 0.75, 1].map((s) => (
+        <polygon
+          key={s}
+          points={data.map((_, i) => pt(i, s).join(",")).join(" ")}
+          fill="none" stroke={C.mint} strokeWidth="1"
+        />
+      ))}
+      {data.map((_, i) => {
+        const [x, y] = pt(i, 1);
+        return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke={C.mint} strokeWidth="1" />;
+      })}
+      <polygon points={poly} fill={C.greenMid} fillOpacity="0.35" stroke={C.greenMid} strokeWidth="2" />
+      {data.map((d, i) => {
+        const [x, y] = pt(i, 1.22);
+        return <text key={i} x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="700" fill={C.green}>{d.label}</text>;
+      })}
+    </svg>
+  );
+}
+
+// ===== Sales — Nível 1 (Pré-leitor) — Curso Primeiros Passos =====
+function SalesScreenL1({ name }: { name: string }) {
+  const [checked, setChecked] = useState<boolean[]>([false, false, false, false, false]);
+  const items = [
+    "Meu filho ainda não reconhece as letras e não sei por onde começar.",
+    "Quero garantir que ele aprenda do jeito certo antes de entrar na escola.",
+    "Já tentei ensinar em casa mas não sabia qual sequência seguir.",
+    "Ouço falar em instrução fônica mas nunca entendi como aplicar na prática.",
+    "Tenho medo de ensinar errado e criar uma base ruim para o meu filho.",
+  ];
+  
+  const firstName = (name || "").split(" ")[0] || "você";
+
+  const Cta = ({ children }: { children: React.ReactNode }) => (
+    <Button fullWidth size="lg" radius="xl" color="brand" mt="md">
+      {children}
+    </Button>
+  );
+
+  return (
+    <div className="min-h-full" style={{ background: C.cream }}>
+      {/* HERO */}
+      <section className="px-5 pt-12 pb-10" style={{ background: C.mint }}>
+        <div className="max-w-xl mx-auto text-center">
+          <span className="inline-block px-3 py-1 rounded-full text-[11px] font-bold mb-4" style={{ background: C.white, color: C.green }}>
+            Curso · Acesso vitalício
+          </span>
+          <H1>{firstName}, seu filho ainda não começou. E isso é uma vantagem enorme.</H1>
+          <p className="mt-4 text-base" style={{ color: C.warm }}>
+            Crianças que aprendem pelo método fônico desde o início chegam à leitura fluente muito mais rápido do que as que tentam outros caminhos. Você está no momento certo para construir essa base do zero, do jeito certo.
+          </p>
+          <Cta>Quero começar do jeito certo →</Cta>
+          <p className="text-xs mt-3" style={{ color: C.green }}>Acesso imediato. Assista quando e onde quiser.</p>
+        </div>
+      </section>
+
+      {/* AUTOIDENTIFICAÇÃO */}
+      <section className="px-5 py-10">
+        <div className="max-w-xl mx-auto">
+          <span className="inline-block px-3 py-1 rounded-full text-[11px] font-bold mb-3" style={{ background: C.mint, color: C.green }}>
+            isso é para você se...
+          </span>
+          <H1>Se você se identifica com ao menos 2 desses itens, esse curso foi feito para você.</H1>
+          <p className="mt-3 text-sm" style={{ color: C.warm }}>Marque as opções abaixo 👇</p>
+          <div className="mt-5 space-y-3">
+            {items.map((t, i) => (
+              <Checkbox
+                key={i}
+                checked={checked[i]}
+                onChange={() => setChecked((c) => c.map((v, j) => (j === i ? !v : v)))}
+                label={t}
+                color="brand"
+                size="md"
+                className="p-4 rounded-2xl bg-white"
+                styles={{
+                  root: { border: `2px solid ${checked[i] ? C.green : C.mint}` },
+                  body: { alignItems: "center" },
+                  label: { color: C.green, fontSize: 14 },
+                }}
+              />
+            ))}
+          </div>
+          <Cta>Quero começar do jeito certo →</Cta>
+        </div>
+      </section>
+
+      {/* DADOS */}
+      <section className="px-5 py-10" style={{ background: C.mintLight }}>
+        <div className="max-w-xl mx-auto">
+          <H1>O Brasil tem um problema sério com a alfabetização das crianças. E a solução já existe.</H1>
+          <div className="grid md:grid-cols-2 gap-4 mt-6">
+            <div className="rounded-3xl bg-white p-5" style={{ border: `2px solid ${C.redSoft}` }}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center mb-3" style={{ background: C.redSoft, color: C.red }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+              </div>
+              <h3 className="font-bold text-lg mb-3" style={{ color: C.red }}>O problema</h3>
+              <ul className="space-y-2 text-sm" style={{ color: C.warm }}>
+                {[
+                  "56% das crianças do 2º ano não foram alfabetizadas na faixa etária esperada",
+                  "Quase 40% já tinham dificuldade antes da pandemia",
+                  "Crianças na escola mas sem aprender a ler",
+                ].map((t, i) => (
+                  <li key={i} className="flex gap-2"><span style={{ color: C.red }}>✗</span>{t}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="rounded-3xl bg-white p-5" style={{ border: `2px solid ${C.greenSoft}` }}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center mb-3" style={{ background: C.mint, color: C.green }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <h3 className="font-bold text-lg mb-3" style={{ color: C.green }}>A solução</h3>
+              <ul className="space-y-2 text-sm" style={{ color: C.warm }}>
+                {[
+                  "97,1% das crianças do Ceará foram alfabetizadas em 2023 com método fônico",
+                  "Salto de 12,5 pontos percentuais em um ano",
+                  "Método comprovado pela ciência e pelos resultados",
+                ].map((t, i) => (
+                  <li key={i} className="flex gap-2"><span style={{ color: C.green }}>✓</span>{t}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <p className="text-xs mt-4" style={{ color: C.warm }}>Fonte: Agência Brasil, 2024 · Governo do Ceará, 2024</p>
+          <p className="mt-5 text-base" style={{ color: C.green }}>
+            Você está no momento certo para garantir que seu filho não faça parte dessa estatística. A base que você vai construir agora vai acompanhar ele para sempre.
+          </p>
+          <Cta>Quero começar do jeito certo →</Cta>
+        </div>
+      </section>
+
+      {/* 3 PASSOS */}
+      <section className="px-5 py-10">
+        <div className="max-w-xl mx-auto">
+          <span className="inline-block px-3 py-1 rounded-full text-[11px] font-bold mb-3" style={{ background: C.mint, color: C.green }}>
+            a solução
+          </span>
+          <H1>É por isso que você vai precisar dos Primeiros Passos na Instrução Fônica.</H1>
+          <p className="mt-3 text-sm" style={{ color: C.warm }}>
+            E é assim que, finalmente, você vai saber exatamente como construir a base de leitura do seu filho:
+          </p>
+          <div className="mt-6 space-y-4">
+            {[
+              ["01", "Entender como seu filho aprende", "Você vai descobrir como o cérebro da criança processa a leitura e por que começar pelos sons, não pelas letras, muda tudo."],
+              ["02", "Dominar a sequência certa de ensino", "Você vai aprender quais sons ensinar primeiro, em qual ordem e como avançar sem confundir a criança que ainda está no início."],
+              ["03", "Criar uma rotina de 15 minutos que funciona", "Você vai montar uma rotina simples e consistente que qualquer mãe consegue aplicar, mesmo sem experiência."],
+            ].map(([n, t, d], i) => (
+              <div key={i} className="flex gap-4 p-5 rounded-3xl bg-white" style={{ border: `2px solid ${C.mint}` }}>
+                <div className="text-3xl font-bold shrink-0" style={{ color: C.greenSoft }}>{n}</div>
+                <div>
+                  <div className="font-bold mb-1" style={{ color: C.green }}>{t}</div>
+                  <div className="text-sm" style={{ color: C.warm }}>{d}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* O QUE VOCÊ VAI APRENDER */}
+      <section className="px-5 py-10" style={{ background: C.mintLight }}>
+        <div className="max-w-xl mx-auto">
+          <span className="inline-block px-3 py-1 rounded-full text-[11px] font-bold mb-3" style={{ background: C.mint, color: C.green }}>
+            o que vem dentro
+          </span>
+          <H1>O que você vai encontrar dentro do curso:</H1>
+          <div className="grid md:grid-cols-2 gap-4 mt-6">
+            {[
+              ["✨", "Você vai descobrir que consegue ensinar", "Antes de qualquer método, você vai entender como o aprendizado funciona. Vamos falar sobre como as pessoas aprendem, como você vai poder ensinar com confiança e o que vai fazer você ser fascinante para o seu filho na hora de ensinar."],
+              ["📚", "O método das 3 lições", "Você vai aprender o melhor método para ensinar qualquer conteúdo, cativando a atenção do seu filho com apenas 3 passos. Você aprenderá com exemplos práticos."],
+              ["📖", "Você vai aprender instrução fônica na prática", "A teoria só até onde você vai precisar. O foco vai ser prático."],
+              ["👂", "Você vai despertar a audição do seu filho", "Você vai realizar 4 atividades ao vivo para desenvolver a percepção auditiva da criança. E ainda receberá um caderno de atividades completo em PDF para você usar em casa."],
+              ["🎙️", "Você vai entender os sonzinhos da fala", "Cada sonzinho pode ser ensinado de uma forma lúdica, com um material exclusivo e original: as fichas dos sons. Esse material fará parte do seu dia a dia."],
+              ["🔑", "Você vai compreender o princípio alfabético", "Você vai entender como chegar ao momento em que a criança percebe que as letras fazem sons, com segurança e sem pressa."],
+            ].map(([icon, title, text], i) => (
+              <div key={i} className="rounded-3xl bg-white p-5" style={{ border: `2px solid ${C.mint}` }}>
+                <div className="text-3xl mb-2">{icon}</div>
+                <div className="font-bold mb-2" style={{ color: C.green }}>{title}</div>
+                <div className="text-sm" style={{ color: C.warm }}>{text}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* BENEFÍCIOS EMOCIONAIS */}
+      <section className="px-5 py-10">
+        <div className="max-w-xl mx-auto">
+          <H1>Depois do curso você vai...</H1>
+          <ul className="mt-6 space-y-3">
+            {[
+              "Saber exatamente por onde começar, sem achismo e sem tentativa e erro",
+              "Ter confiança para criar uma rotina em casa que realmente funciona",
+              "Ver seu filho dar os primeiros passos na leitura com você do lado",
+              "Garantir que ele chegue à escola com uma base que a maioria não tem",
+              "Parar de depender só da escola para garantir a alfabetização do seu filho",
+            ].map((t, i) => (
+              <li key={i} className="flex gap-3 p-4 rounded-2xl bg-white" style={{ border: `2px solid ${C.mint}` }}>
+                <span className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center text-xs font-bold" style={{ background: C.green, color: C.white }}>✓</span>
+                <span className="text-sm" style={{ color: C.green }}>{t}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* STACK DE VALOR */}
+      <section className="px-5 py-10" style={{ background: C.mintLight }}>
+        <div className="max-w-xl mx-auto">
+          <span className="inline-block px-3 py-1 rounded-full text-[11px] font-bold mb-3" style={{ background: C.mint, color: C.green }}>
+            recapitulando
+          </span>
+          <H1>Tudo que você vai receber no curso Primeiros Passos na Instrução Fônica</H1>
+          <div className="grid md:grid-cols-2 gap-5 mt-6">
+            <div className="space-y-2 text-sm">
+              {[
+                ["Aula completa com a Gabriela Engler", "R$297"],
+                ["O método das 3 lições na prática", "R$97"],
+                ["Instrução fônica na prática", "R$97"],
+                ["Caderno de atividades de percepção auditiva em PDF", "R$47"],
+                ["Fichas dos sons", "R$47"],
+                ["Acesso vitalício", "incalculável"],
+              ].map(([t, v], i) => (
+                <div key={i} className="flex justify-between gap-3 p-3 rounded-xl bg-white">
+                  <span style={{ color: C.green }}>{t}</span>
+                  <span className="line-through shrink-0" style={{ color: C.red }}>{v}</span>
+                </div>
+              ))}
+              <p className="mt-3 text-sm" style={{ color: C.warm }}>
+                No total isso tudo deveria custar <span className="line-through">R$488</span>. Mas hoje você vai ter acesso completo ao curso por apenas:
+              </p>
+            </div>
+            <div className="rounded-3xl p-6 shadow-2xl" style={{ background: C.green, color: C.white }}>
+              <span className="inline-block px-3 py-1 rounded-full text-[11px] font-bold" style={{ background: C.greenSoft, color: C.green }}>
+                acesso completo por apenas
+              </span>
+              <div className="text-5xl font-bold mt-3">R$97</div>
+              <p className="text-sm" style={{ color: C.greenSoft }}>pagamento único · acesso vitalício</p>
+              <button className="mt-5 w-full h-14 rounded-full font-bold text-base transition active:scale-[0.98]" style={{ background: C.white, color: C.green }}>
+                Quero começar do jeito certo →
+              </button>
+              <p className="text-xs text-center mt-3" style={{ color: C.greenSoft }}>PIX · Cartão · Compra segura</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FLUXO PÓS-COMPRA */}
+      <section className="px-5 py-10">
+        <div className="max-w-xl mx-auto">
+          <H1>Veja o que vai acontecer depois que você garantir o acesso:</H1>
+          <div className="mt-6 space-y-4">
+            {[
+              ["Passo 1", "Confirmação por e-mail", "Você vai receber um e-mail com a confirmação da compra e o link de acesso ao curso."],
+              ["Passo 2", "Acesso imediato", "Em poucos minutos você já vai poder assistir a primeira aula e começar a planejar a rotina em casa."],
+              ["Passo 3", "Aplicação com seu filho", "Com o conteúdo em mãos, você vai criar uma rotina de 15 minutos e começar a construir a base de leitura do seu filho ainda hoje."],
+            ].map(([tag, t, d], i) => (
+              <div key={i} className="p-5 rounded-3xl bg-white" style={{ border: `2px solid ${C.mint}` }}>
+                <div className="text-xs font-bold mb-1" style={{ color: C.greenMid }}>{tag}</div>
+                <div className="font-bold mb-1" style={{ color: C.green }}>{t}</div>
+                <div className="text-sm" style={{ color: C.warm }}>{d}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SOBRE A GABRIELA */}
+      <section className="px-5 py-10" style={{ background: C.mintLight }}>
+        <div className="max-w-xl mx-auto">
+          <div className="rounded-3xl bg-white p-6" style={{ border: `2px solid ${C.mint}` }}>
+            <img src={motherChild.src} alt="Gabriela Engler" className="w-28 h-28 rounded-full object-cover mx-auto mb-4" />
+            <p className="text-center text-xs font-bold uppercase tracking-wider" style={{ color: C.greenMid }}>Quem vai te ensinar</p>
+            <p className="mt-3 text-sm text-center" style={{ color: C.warm }}>
+              Sou a <strong style={{ color: C.green }}>Gabriela Engler</strong>, especialista em instrução fônica com mais de 8 anos alfabetizando crianças. Já vi de perto o que funciona e o que não funciona. Nesse curso você vai aprender na prática o que eu aplico com cada criança que atendo, em uma linguagem simples e direta para qualquer mãe conseguir replicar em casa, mesmo que seu filho ainda esteja no início.
+            </p>
+            <p className="text-center text-sm font-semibold mt-3" style={{ color: C.greenMid }}>@elagabriela.abc</p>
+          </div>
+        </div>
+      </section>
+
+      {/* TURMA INAUGURAL */}
+      <section className="px-5 py-6">
+        <div className="max-w-xl mx-auto">
+          <div className="rounded-3xl p-6 text-center" style={{ background: C.mint }}>
+            <div className="text-yellow-500 text-xl">★★★★★</div>
+            <h3 className="text-2xl font-bold mt-2" style={{ color: C.green }}>Seja uma das primeiras.</h3>
+            <p className="mt-2 text-sm" style={{ color: C.warm }}>
+              Esse é o primeiro curso da Gabriela Engler. Garante o seu acesso agora e faz parte da história.
+            </p>
+            <span className="inline-block mt-3 px-3 py-1 rounded-full text-xs font-bold" style={{ background: C.green, color: C.white }}>
+              Lançamento com condição especial
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* GARANTIA */}
+      <section className="px-5 py-6">
+        <div className="max-w-md mx-auto">
+          <div className="rounded-3xl bg-white p-6 text-center" style={{ border: `2px solid ${C.mint}` }}>
+            <div className="w-14 h-14 mx-auto rounded-full flex items-center justify-center mb-3" style={{ background: C.mint }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3 className="font-bold text-lg" style={{ color: C.green }}>Garantia total</h3>
+            <p className="text-sm mt-2" style={{ color: C.warm }}>
+              Assista ao curso completo e, se sentir que não aprendeu nada que consegue aplicar em casa, devolvo o seu dinheiro. Sem burocracia. Você vai comprar com total segurança.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="px-5 py-10">
+        <div className="max-w-xl mx-auto">
+          <span className="inline-block px-3 py-1 rounded-full text-[11px] font-bold mb-3" style={{ background: C.mint, color: C.green }}>
+            dúvidas frequentes
+          </span>
+          <H1>Confira se a sua dúvida não está respondida abaixo</H1>
+          <div className="mt-6 space-y-3">
+            {[
+              ["Vou precisar ter formação em pedagogia?", "Não. O curso foi feito para mães sem formação na área. Tudo é explicado de forma simples e com exemplos práticos."],
+              ["Para qual idade é indicado?", "Esse módulo foi desenvolvido especialmente para crianças de 0 a 3 anos, ainda na fase pré-leitora."],
+              ["Como vou acessar o curso?", "Você vai receber o link de acesso por e-mail imediatamente após a compra."],
+              ["Por quanto tempo terei acesso?", "Para sempre. O acesso é vitalício e você pode assistir quantas vezes quiser."],
+              ["E se eu não ficar satisfeita?", "Você tem garantia total. Se sentir que não aprendeu nada aplicável, pode pedir o reembolso sem burocracia."],
+            ].map(([q, a], i) => (
+              <FaqItem key={i} q={q} a={a} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA FINAL */}
+      <section className="px-5 py-12" style={{ background: C.green }}>
+        <div className="max-w-md mx-auto text-center">
+          <h2 className="text-3xl font-bold" style={{ color: C.white }}>
+            Mãe que investe na base certa prepara um filho para aprender para sempre.
+          </h2>
+          <p className="mt-3 text-base" style={{ color: C.greenSoft }}>
+            Você vai estar do lado do seu filho desde o primeiro som.
+          </p>
+          <button className="mt-6 w-full h-14 rounded-full font-bold text-base transition active:scale-[0.98]" style={{ background: C.white, color: C.green }}>
+            Quero começar do jeito certo →
+          </button>
+          <p className="text-xs mt-3" style={{ color: C.greenSoft }}>
+            Acesso imediato · Acesso vitalício · Pagamento único · R$97
+          </p>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// ===== Screen 19 — Sales (níveis 2–5, fallback até copy chegar) =====
+function SalesScreen() {
+  return (
+    <div className="min-h-full">
+      {/* Bloco 1 — Problema vs solução */}
+      <section className="px-5 py-10" style={{ background: C.mint }}>
+        <div className="max-w-xl mx-auto">
+          <H1>O Brasil tem um problema sério com a alfabetização. E a solução já existe.</H1>
+          <div className="grid md:grid-cols-2 gap-4 mt-6">
+            <div className="rounded-3xl bg-white p-5" style={{ border: `2px solid ${C.redSoft}` }}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center mb-3" style={{ background: C.redSoft, color: C.red }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+              </div>
+              <h3 className="font-bold text-lg mb-3" style={{ color: C.red }}>O problema</h3>
+              <ul className="space-y-2 text-sm" style={{ color: C.warm }}>
+                {[
+                  "56% das crianças do 2º ano não foram alfabetizadas na faixa etária esperada",
+                  "Quase 40% já tinham dificuldade antes da pandemia",
+                  "Crianças na escola mas sem aprender a ler",
+                ].map((t, i) => (
+                  <li key={i} className="flex gap-2"><span style={{ color: C.red }}>✗</span>{t}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="rounded-3xl bg-white p-5" style={{ border: `2px solid ${C.greenSoft}` }}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center mb-3" style={{ background: C.mint, color: C.green }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <h3 className="font-bold text-lg mb-3" style={{ color: C.green }}>A solução</h3>
+              <ul className="space-y-2 text-sm" style={{ color: C.warm }}>
+                {[
+                  "97,1% das crianças do Ceará foram alfabetizadas em 2023 com método fônico",
+                  "Salto de 12,5 pontos percentuais em um ano",
+                  "Método comprovado pela ciência e pelos resultados",
+                ].map((t, i) => (
+                  <li key={i} className="flex gap-2"><span style={{ color: C.green }}>✓</span>{t}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <p className="text-xs mt-4" style={{ color: C.warm }}>Fonte: Agência Brasil, 2024 · Governo do Ceará, 2024</p>
+        </div>
+      </section>
+
+      {/* Bloco 2 — O que você vai receber */}
+      <section className="px-5 py-10">
+        <div className="max-w-xl mx-auto">
+          <H1>O que você vai receber na masterclass</H1>
+          <ul className="mt-6 space-y-4">
+            {[
+              ["📅", "Aula ao vivo de 3 horas", "com a Gabriela Engler pelo Google Meet"],
+              ["🧠", "A Tríade do Ensino na prática", "maravilhamento, modelação e exercício"],
+              ["🔤", "Sequência certa para ensinar as letras", "sem confundir a criança"],
+              ["📄", "PDF com 4 atividades de percepção auditiva", "para usar em casa"],
+              ["📄", "PDF com 5 atividades de consciência fonológica", "prontas para aplicar"],
+              ["❓", "Sessão de tira dúvidas ao vivo", "todas as suas perguntas respondidas"],
+            ].map(([icon, title, sub], i) => (
+              <li key={i} className="flex gap-3">
+                <span className="text-2xl shrink-0">{icon}</span>
+                <div>
+                  <div className="font-bold" style={{ color: C.green }}>{title}</div>
+                  <div className="text-sm" style={{ color: C.warm }}>{sub}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-6 rounded-3xl bg-white p-5" style={{ border: `2px solid ${C.mint}` }}>
+            <div className="font-bold" style={{ color: C.green }}>Gabriela Engler</div>
+            <div className="text-sm" style={{ color: C.warm }}>Especialista em instrução fônica</div>
+            <div className="text-sm" style={{ color: C.warm }}>8 anos de experiência</div>
+            <div className="text-sm font-semibold mt-1" style={{ color: C.greenMid }}>@elagabriela.abc</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Bloco 3 — Turma inaugural */}
+      <section className="px-5 py-6">
+        <div className="max-w-xl mx-auto">
+          <div className="rounded-3xl p-6 text-center" style={{ background: C.mint }}>
+            <div className="text-yellow-500 text-xl">★★★★★</div>
+            <h3 className="text-2xl font-bold mt-2" style={{ color: C.green }}>Seja uma das primeiras.</h3>
+            <p className="mt-2 text-sm" style={{ color: C.warm }}>
+              Essa é a primeira turma da masterclass. Garante sua vaga agora e faz parte da história da Gabriela Engler.
+            </p>
+            <span className="inline-block mt-3 px-3 py-1 rounded-full text-xs font-bold" style={{ background: C.green, color: C.white }}>
+              Turma inaugural — 30 de maio
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* Bloco 4 — Plano de compra */}
+      <section className="px-5 py-10">
+        <div className="max-w-md mx-auto">
+          <h2 className="text-2xl font-bold text-center mb-5" style={{ color: C.green }}>Garanta sua vaga</h2>
+          <div className="rounded-3xl p-6 shadow-2xl" style={{ background: C.green, color: C.white }}>
+            <span className="inline-block px-3 py-1 rounded-full text-[11px] font-bold" style={{ background: C.greenSoft, color: C.green }}>
+              30 de maio · Ao vivo · Google Meet
+            </span>
+            <h3 className="text-xl font-bold mt-3">Masterclass Primeiros Passos na Instrução Fônica</h3>
+            <div className="h-px my-4" style={{ background: C.greenSoft, opacity: 0.5 }} />
+            <ul className="space-y-2 text-sm">
+              {[
+                "Aula ao vivo de 3 horas",
+                "Sessão de tira dúvidas ao vivo",
+                "PDF com 4 atividades de percepção auditiva",
+                "PDF com 5 atividades de consciência fonológica",
+              ].map((t, i) => (
+                <li key={i} className="flex gap-2"><span style={{ color: C.greenSoft }}>✓</span>{t}</li>
+              ))}
+            </ul>
+            <div className="h-px my-4" style={{ background: C.greenSoft, opacity: 0.5 }} />
+            <p className="text-xs" style={{ color: C.greenSoft }}>Apenas 50 vagas disponíveis</p>
+            <div className="text-5xl font-bold mt-2">R$97</div>
+            <p className="text-xs" style={{ color: C.greenSoft }}>pagamento único</p>
+            <button className="mt-5 w-full h-14 rounded-full font-bold text-base transition active:scale-[0.98]" style={{ background: C.white, color: C.green }}>
+              Sim, quero aprender a alfabetizar meu filho →
+            </button>
+            <p className="text-xs text-center mt-3" style={{ color: C.greenSoft }}>PIX · Cartão · Compra segura</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Bloco 5 — Garantia */}
+      <section className="px-5 py-6">
+        <div className="max-w-md mx-auto">
+          <div className="rounded-3xl bg-white p-6 text-center" style={{ border: `2px solid ${C.mint}` }}>
+            <div className="w-14 h-14 mx-auto rounded-full flex items-center justify-center mb-3" style={{ background: C.mint }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3 className="font-bold text-lg" style={{ color: C.green }}>Garantia total</h3>
+            <p className="text-sm mt-2" style={{ color: C.warm }}>
+              Assista a aula completa e, se sentir que não aprendeu nada aplicável, devolvo seu dinheiro. Sem burocracia.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Bloco 6 — FAQ */}
+      <section className="px-5 py-10">
+        <div className="max-w-xl mx-auto">
+          <H1>A gente costuma ser perguntada sobre</H1>
+          <div className="mt-6 space-y-3">
+            {[
+              ["Vou precisar ter formação em pedagogia?", "Não. A masterclass foi feita para mães sem formação na área. Tudo vai ser explicado de forma simples e com exemplos práticos."],
+              ["Para qual idade é indicado?", "Para filhos de qualquer idade, do pré-escolar ao ensino fundamental."],
+              ["Como vai funcionar o acesso ao vivo?", "A aula acontece pelo Google Meet no dia 30 de maio. Você recebe o link por e-mail após a inscrição."],
+              ["Vou ter chance de tirar dúvidas?", "Sim. Ao final da aula tem uma sessão ao vivo exclusiva para perguntas e respostas com a Gabriela."],
+              ["E se eu não ficar satisfeita?", "Você tem garantia total. Se sentir que não aprendeu nada aplicável, pode pedir o reembolso sem burocracia."],
+            ].map(([q, a], i) => (
+              <FaqItem key={i} q={q} a={a} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Bloco 7 — CTA final */}
+      <section className="px-5 py-12" style={{ background: C.green }}>
+        <div className="max-w-md mx-auto text-center">
+          <h2 className="text-3xl font-bold" style={{ color: C.white }}>
+            Mãe que investe em educação prepara um filho para vencer.
+          </h2>
+          <p className="mt-3 text-base" style={{ color: C.greenSoft }}>
+            Você vai estar do lado do seu filho em cada passo dessa jornada.
+          </p>
+          <button className="mt-6 w-full h-14 rounded-full font-bold text-base transition active:scale-[0.98]" style={{ background: C.white, color: C.green }}>
+            Sim, quero aprender a alfabetizar meu filho →
+          </button>
+          <p className="text-xs mt-3" style={{ color: C.greenSoft }}>
+            30 de maio · Ao vivo · Google Meet · Apenas 50 vagas · R$97
+          </p>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function FaqItem({ q, a }: { q: string; a: string }) {
+  return (
+    <Accordion variant="separated" radius="lg" chevronPosition="right">
+      <Accordion.Item value="faq" style={{ background: C.white, border: `2px solid ${C.mint}` }}>
+        <Accordion.Control styles={{ label: { color: C.green, fontWeight: 600 } }}>
+          {q}
+        </Accordion.Control>
+        <Accordion.Panel styles={{ content: { color: C.warm, fontSize: 14 } }}>
+          {a}
+        </Accordion.Panel>
+      </Accordion.Item>
+    </Accordion>
+  );
+}
