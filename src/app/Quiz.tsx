@@ -297,13 +297,45 @@ const AGE_LEVEL_TEXTS: Record<string, string> = {
   "10+-5": "Seu filho tem uma base sólida de leitura. Com 10 anos ou mais nesse nível, o próximo passo é desenvolver a leitura crítica e a interpretação de textos mais complexos. Isso vai fazer diferença não só na escola, mas na vida inteira dele.",
 };
 
-// Score range: 11..55 (Q8 is neutral)
+// Placar 0..18: somam apenas as 5 perguntas-métrica (Q1+Q2 vão até 3, Q3+Q4+Q5 até 4).
+// As 6 perguntas seguintes são neutras e não pontuam.
+// Faixas iguais por ora; refinar os cortes testando o quiz.
 function levelFromScore(s: number): number {
-  if (s <= 21) return 1;
-  if (s <= 32) return 2;
-  if (s <= 42) return 3;
-  if (s <= 49) return 4;
+  if (s <= 3) return 1;
+  if (s <= 7) return 2;
+  if (s <= 11) return 3;
+  if (s <= 15) return 4;
   return 5;
+}
+
+// Nível esperado por idade, por pergunta-métrica [Q1 Alfabeto, Q2 Sons, Q3 Sílabas, Q4 Palavras, Q5 Escrita].
+// Derivado dos popups (ponto onde a frase vira "Isso é o esperado para a idade").
+const EXPECTED_BY_AGE: Record<string, number[]> = {
+  "0-2": [0, 0, 0, 0, 0],
+  "3":   [1, 1, 1, 1, 1],
+  "4":   [2, 2, 2, 2, 2],
+  "5-6": [3, 3, 3, 3, 3],
+  "7+":  [3, 3, 4, 4, 4],
+};
+
+// Score relativo à idade = soma de (nível atingido − nível esperado) nas 5 perguntas-métrica.
+// Faixa: −18 (muito atrás) .. +18 (muito à frente); 0 = exatamente no esperado.
+function relativeScore(answers: Record<number, number>, age: string): number {
+  const expected = EXPECTED_BY_AGE[age];
+  if (!expected) return 0;
+  let s = 0;
+  for (let q = 0; q < 5; q++) {
+    if (answers[q] !== undefined) s += answers[q] - expected[q];
+  }
+  return s;
+}
+
+// Diagnóstico relativo: posição média (em "níveis") e a faixa de mensagem.
+function relativeBand(score: number): { levels: number; tone: "ahead" | "on" | "behind" } {
+  const levels = Math.round(score / 5);
+  if (score >= 2) return { levels, tone: "ahead" };
+  if (score >= -1) return { levels, tone: "on" };
+  return { levels, tone: "behind" };
 }
 
 function futureDateInWeeks(weeks: number) {
@@ -1063,7 +1095,22 @@ function ProgressCurve({ startPct, weeks }: { startPct: number; weeks: number })
 function ResultScreen({ name, level, answers, age }: { name: string; level: number; answers: Record<number, number>; age: string }) {
   const info = LEVEL_TEXTS[level];
   const firstName = (name || "Olá").split(" ")[0];
-  const ageText = AGE_LEVEL_TEXTS[`${age}-${level}`] || "";
+  // Diagnóstico relativo à idade (independente do estágio que escolhe a página de vendas)
+  const rel = relativeBand(relativeScore(answers, age));
+  const relN = Math.abs(rel.levels);
+  const relNoun = relN === 1 ? "nível" : "níveis";
+  const relHeadline =
+    rel.tone === "ahead"
+      ? relN > 0 ? `Seu filho está ${relN} ${relNoun} à frente para a idade` : "Seu filho está à frente do esperado para a idade"
+      : rel.tone === "behind"
+      ? relN > 0 ? `Seu filho está ${relN} ${relNoun} atrás para a idade` : "Seu filho está atrás do esperado para a idade"
+      : "Seu filho está no ritmo esperado para a idade";
+  const relSub =
+    rel.tone === "ahead"
+      ? "Ele está se desenvolvendo acima do esperado para a faixa etária. O método fônico vai manter esse ritmo e aprofundar a base."
+      : rel.tone === "behind"
+      ? "Há uma lacuna em relação ao esperado para a idade, e ela tem solução. O método fônico age exatamente nesse ponto."
+      : "Ele está acompanhando o esperado para a faixa etária. O método fônico vai consolidar e avançar com segurança.";
   // Radar 4 axes — normaliza cada eixo pelo seu teto (Alfabeto/Sons até 3; Leitura/Escrita até 4)
   const skills = [
     { label: "Alfabeto", value: ((answers[0] ?? 0) / 3) * 0.9 },
@@ -1098,11 +1145,11 @@ function ResultScreen({ name, level, answers, age }: { name: string; level: numb
           <p style={{ color: C.warm }} className="leading-relaxed">{info.diag}</p>
         </div>
 
-        {ageText && (
-          <div className="rounded-3xl p-5" style={{ background: C.mintLight, border: `2px solid ${C.mint}` }}>
-            <p className="text-sm font-medium leading-relaxed" style={{ color: C.green }}>{ageText}</p>
-          </div>
-        )}
+        <div className="rounded-3xl p-5" style={{ background: rel.tone === "behind" ? C.redSoft : C.mintLight, border: `2px solid ${rel.tone === "behind" ? C.red : C.mint}` }}>
+          <div className="text-xs font-bold tracking-wider mb-2" style={{ color: rel.tone === "behind" ? C.red : C.green }}>POSIÇÃO PARA A IDADE</div>
+          <p className="text-lg font-bold leading-snug" style={{ color: rel.tone === "behind" ? C.red : C.green }}>{relHeadline}</p>
+          <p className="text-sm mt-2 leading-relaxed" style={{ color: C.warm }}>{relSub}</p>
+        </div>
 
         <div className="rounded-3xl bg-white p-5" style={{ border: `2px solid ${C.mint}` }}>
           <h3 className="font-bold mb-3" style={{ color: C.green }}>Habilidades do seu filho</h3>
