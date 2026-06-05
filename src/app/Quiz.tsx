@@ -40,53 +40,59 @@ type Question = { title: string; subtitle?: string; options: Option[]; neutral?:
 
 const QUESTIONS: Question[] = [
   {
-    title: "Seu filho reconhece as letras do alfabeto?",
+    title: "Seu filho reconhece as letras?",
     subtitle: "Escolha a opção que mais se aproxima",
+    // weight = nível da habilidade (0..4). Alfabeto vai só até 3 (teto = "conhece todas").
     options: [
-      { icon: "✓", label: "Reconhece todas com facilidade", weight: 5 },
-      { icon: "~", label: "Reconhece a maioria mas confunde algumas", weight: 4 },
-      { icon: "?", label: "Reconhece poucas letras", weight: 2 },
-      { icon: "✗", label: "Ainda não reconhece nenhuma", weight: 1 },
+      { icon: "✅", label: "Conhece todas", weight: 3 },
+      { icon: "🙂", label: "Conhece a maioria", weight: 2 },
+      { icon: "🔄", label: "Conhece algumas, mas confunde", weight: 1 },
+      { icon: "🌱", label: "Não conhece letras", weight: 0 },
     ],
   },
   {
-    title: "Ele consegue dizer o som das letras?",
+    title: "Seu filho conhece os sons das letras?",
     subtitle: "Mostre uma letra e peça o som, não o nome",
+    // weight = nível da habilidade (0..4). Sons vai só até 3 (teto = "sabe todos").
     options: [
-      { icon: "🔊", label: "Sim, sabe o som da maioria", weight: 5 },
-      { icon: "💭", label: "Sabe o nome mas confunde com o som", weight: 3 },
-      { icon: "😕", label: "Raramente consegue", weight: 2 },
-      { icon: "✗", label: "Ainda não associa letra ao som", weight: 1 },
+      { icon: "✅", label: "Sabe todos", weight: 3 },
+      { icon: "🙂", label: "Sabe a maioria", weight: 2 },
+      { icon: "🔄", label: "Sabe alguns sons", weight: 1 },
+      { icon: "🌱", label: "Não sabe nenhum som", weight: 0 },
     ],
   },
   {
-    title: "Seu filho consegue juntar sílabas para formar palavras?",
+    title: "Seu filho consegue ler sílabas?",
     options: [
-      { icon: "🧩", label: "Sim, forma palavras com facilidade", weight: 5 },
-      { icon: "🐢", label: "Consegue mas é lento e trava bastante", weight: 3 },
-      { icon: "🔄", label: "Tenta mas não consegue ainda", weight: 2 },
-      { icon: "✗", label: "Ainda não chegou nessa etapa", weight: 1 },
+      { icon: "🌟", label: "Sabe ler todas as sílabas, até as complexas", weight: 4 },
+      { icon: "✅", label: "Sabe ler todas as sílabas simples", weight: 3 },
+      { icon: "🙂", label: "Sabe ler a maioria das sílabas", weight: 2 },
+      { icon: "🔄", label: "Tenta ler, mas chuta algumas sílabas", weight: 1 },
+      { icon: "🌱", label: "Não lê sílabas", weight: 0 },
     ],
   },
   {
-    title: "O que acontece quando ele tenta ler uma palavra?",
+    title: "Seu filho consegue ler palavras?",
     options: [
-      { icon: "📖", label: "Lê com fluência e entende o que leu", weight: 5 },
-      { icon: "👆", label: "Lê devagar soletrando letra por letra", weight: 3 },
-      { icon: "😰", label: "Trava na maioria das palavras", weight: 2 },
-      { icon: "🚫", label: "Ainda não tenta ler", weight: 1 },
+      { icon: "🌟", label: "Consegue ler todas as palavras", weight: 4 },
+      { icon: "✅", label: "Consegue ler quase todas as palavras", weight: 3 },
+      { icon: "🙂", label: "Tenta ler, mas ainda erra", weight: 2 },
+      { icon: "🔄", label: "Tenta adivinhar", weight: 1 },
+      { icon: "🌱", label: "Não lê palavras", weight: 0 },
     ],
   },
   {
-    title: "Seu filho consegue escrever palavras simples sozinho?",
+    title: "Seu filho consegue escrever palavras?",
     options: [
-      { icon: "✍️", label: "Sim, escreve com poucos erros", weight: 5 },
-      { icon: "📝", label: "Escreve mas com muitos erros fonéticos", weight: 3 },
-      { icon: "👁️", label: "Consegue copiar mas não escreve sozinho", weight: 2 },
-      { icon: "✗", label: "Ainda não escreve", weight: 1 },
+      { icon: "🌟", label: "Escreve acertando praticamente tudo", weight: 4 },
+      { icon: "✅", label: "Escreve acertando a maioria", weight: 3 },
+      { icon: "🙂", label: "Escreve com bastante erro", weight: 2 },
+      { icon: "🔄", label: "Escreve sílabas ou palavras que já memorizou", weight: 1 },
+      { icon: "🌱", label: "Não escreve", weight: 0 },
     ],
   },
   {
+    neutral: true,
     title: "Como seu filho se relaciona com a leitura?",
     options: [
       { icon: "❤️", label: "Adora livros e pede para ler sempre", weight: 5 },
@@ -96,6 +102,7 @@ const QUESTIONS: Question[] = [
     ],
   },
   {
+    neutral: true,
     title: "Você já tentou ensinar seu filho a ler em casa?",
     options: [
       { icon: "⭐", label: "Sim e vejo progresso", weight: 5 },
@@ -106,6 +113,7 @@ const QUESTIONS: Question[] = [
   },
   // Q8 — Rotina em casa
   {
+    neutral: true,
     title: "Você tem uma rotina de estudos em casa com seu filho?",
     options: [
       { icon: "📅", label: "Sim, estudamos todo dia", weight: 5 },
@@ -116,6 +124,7 @@ const QUESTIONS: Question[] = [
   },
   // Q9 — Método fônico
   {
+    neutral: true,
     title: "Você já conhece ou já usou a instrução fônica?",
     options: [
       { icon: "🏆", label: "Sim, já uso e quero me aprofundar", weight: 5 },
@@ -126,6 +135,7 @@ const QUESTIONS: Question[] = [
   },
   // Q10 — Escola
   {
+    neutral: true,
     title: "Como está o desempenho do seu filho na escola em relação à leitura?",
     options: [
       { icon: "⭐", label: "Está indo bem, acima da turma", weight: 5 },
@@ -136,6 +146,7 @@ const QUESTIONS: Question[] = [
   },
   // Q11 — Emoção
   {
+    neutral: true,
     title: "Como seu filho reage quando encontra dificuldade na leitura?",
     options: [
       { icon: "💪", label: "Persiste e tenta de novo", weight: 5 },
@@ -145,6 +156,48 @@ const QUESTIONS: Question[] = [
     ],
   },
 ];
+
+// ===== Popups de feedback por resposta (idade × pergunta × nível) =====
+// Aparecem após responder uma das 5 perguntas-métrica (qIndex 0..4).
+// Chave: POPUP_TEXTS[idade][qIndex][nível escolhido] = frase.
+// qIndex: 0=Alfabeto · 1=Sons · 2=Leitura(sílabas) · 3=Leitura(palavras) · 4=Escrita
+const POPUP_TEXTS: Record<string, Record<number, Record<number, string>>> = {
+  "0-2": {
+    0: { 0: "Isso é o esperado para a idade", 1: "Isso é um ótimo sinal!", 2: "Isso é ótimo, seu filho está avançado!", 3: "Isso é extraordinário! Seu filho está bem avançado.", 4: "Isso é extraordinário! Seu filho está bem avançado." },
+    1: { 0: "Seu filho já poderia aprender todos os sonzinhos!", 1: "Seu filho já poderia aprender todos os sonzinhos!", 2: "Seu filho já poderia aprender todos os sonzinhos!", 3: "Muito bom. É preciso praticar todos os dias!", 4: "Muito bom. É preciso praticar todos os dias!" },
+    2: { 0: "Isso é o esperado para a idade", 1: "Isso é um ótimo sinal!", 2: "Isso é ótimo, seu filho está avançado!", 3: "Isso é extraordinário! Seu filho está bem avançado.", 4: "Isso é extraordinário! Seu filho está bem avançado." },
+    3: { 0: "Isso é o esperado para a idade", 1: "Isso é um ótimo sinal!", 2: "Isso é ótimo, seu filho está avançado!", 3: "Isso é extraordinário! Seu filho está bem avançado.", 4: "Isso é extraordinário! Seu filho está bem avançado." },
+    4: { 0: "Isso é o esperado para a idade", 1: "Isso é ótimo, seu filho está avançado!", 2: "Isso é extraordinário! Seu filho está bem avançado.", 3: "Isso é extraordinário! Seu filho está bem avançado.", 4: "Isso é extraordinário! Seu filho está bem avançado." },
+  },
+  "3": {
+    0: { 0: "Seu filho já poderia conhecer as vogais…", 1: "Isso é o esperado para a idade", 2: "Isso é um ótimo sinal!", 3: "Isso é ótimo, seu filho está avançado!", 4: "Isso é ótimo, seu filho está avançado!" },
+    1: { 0: "Seu filho já poderia saber todos os sonzinhos…", 1: "Seu filho já poderia saber todos os sonzinhos…", 2: "Seu filho já poderia saber todos os sonzinhos…", 3: "Isso é o esperado para a idade", 4: "Isso é o esperado para a idade" },
+    2: { 0: "Seu filho já poderia ler sílabas com as vogais… (ia, eu)", 1: "Isso é o esperado para a idade", 2: "Isso é um ótimo sinal!", 3: "Isso é ótimo, seu filho está avançado!", 4: "Isso é extraordinário! Seu filho está bem avançado." },
+    3: { 0: "Seu filho já poderia ler palavras com as vogais… (ioiô, au)", 1: "Isso é o esperado para a idade", 2: "Isso é um ótimo sinal!", 3: "Isso é ótimo, seu filho está avançado!", 4: "Isso é extraordinário! Seu filho está bem avançado." },
+    4: { 0: "Seu filho já poderia escrever palavras com as vogais… (ai, oi, ioiô)", 1: "Isso é o esperado para a idade", 2: "Isso é um ótimo sinal!", 3: "Isso é ótimo, seu filho está avançado!", 4: "Isso é extraordinário! Seu filho está bem avançado." },
+  },
+  "4": {
+    0: { 0: "Seu filho já poderia saber todo o alfabeto", 1: "Seu filho já poderia saber todo o alfabeto", 2: "Isso é o esperado para a idade", 3: "Isso é ótimo, seu filho está avançado!", 4: "Isso é ótimo, seu filho está avançado!" },
+    1: { 0: "Seu filho já poderia saber todos os sonzinhos…", 1: "Seu filho já poderia saber todos os sonzinhos…", 2: "Seu filho já poderia saber todos os sonzinhos…", 3: "Isso é o esperado para a idade", 4: "Isso é o esperado para a idade" },
+    2: { 0: "Seu filho já poderia ler sílabas simples (ma, xu, zi)", 1: "Seu filho já poderia ler sílabas simples", 2: "Isso é o esperado para a idade", 3: "Isso é ótimo, seu filho está avançado!", 4: "Isso é extraordinário! Seu filho está bem avançado." },
+    3: { 0: "Seu filho já poderia ler palavras simples… (mala, dado)", 1: "Seu filho já poderia ler palavras simples… (mala, dado)", 2: "Isso é o esperado para a idade", 3: "Isso é ótimo, seu filho está avançado!", 4: "Isso é extraordinário! Seu filho está bem avançado." },
+    4: { 0: "Seu filho já poderia escrever palavras simples… (mala, dado)", 1: "Seu filho já poderia escrever palavras simples… (mala, dado)", 2: "Isso é o esperado para a idade", 3: "Isso é ótimo, seu filho está avançado!", 4: "Isso é extraordinário! Seu filho está bem avançado." },
+  },
+  "5-6": {
+    0: { 0: "Seu filho já poderia saber todo o alfabeto", 1: "Seu filho já poderia saber todo o alfabeto", 2: "Seu filho já poderia saber todo o alfabeto", 3: "Isso é o esperado para a idade" },
+    1: { 0: "Seu filho já poderia saber todos os sonzinhos…", 1: "Seu filho já poderia saber todos os sonzinhos…", 2: "Seu filho já poderia saber todos os sonzinhos…", 3: "Isso é o esperado para a idade" },
+    2: { 0: "Seu filho já poderia ler sílabas", 1: "Seu filho já poderia ler sílabas", 2: "Seu filho já poderia ler sílabas", 3: "Isso é o esperado para a idade", 4: "Isso é ótimo, seu filho está avançado!" },
+    3: { 0: "Seu filho já poderia ler palavras", 1: "Seu filho já poderia ler palavras", 2: "Seu filho já poderia ler palavras", 3: "Isso é o esperado para a idade", 4: "Isso é ótimo, seu filho está avançado!" },
+    4: { 0: "Seu filho já poderia saber escrever", 1: "Seu filho já poderia saber escrever", 2: "Seu filho já poderia saber escrever", 3: "Isso é o esperado para a idade", 4: "Isso é ótimo, seu filho está avançado!" },
+  },
+  "7+": {
+    0: { 0: "Seu filho já poderia saber todo o alfabeto", 1: "Seu filho já poderia saber todo o alfabeto", 2: "Seu filho já poderia saber todo o alfabeto", 3: "Isso é o esperado para a idade" },
+    1: { 0: "Seu filho já poderia saber todos os sonzinhos…", 1: "Seu filho já poderia saber todos os sonzinhos…", 2: "Seu filho já poderia saber todos os sonzinhos…", 3: "Isso é o esperado para a idade" },
+    2: { 0: "Seu filho já poderia ler sílabas complexas", 1: "Seu filho já poderia ler sílabas complexas", 2: "Seu filho já poderia ler sílabas complexas", 3: "Seu filho já poderia ler sílabas complexas", 4: "Isso é o esperado para a idade" },
+    3: { 0: "Seu filho já poderia ler quase todas as palavras", 1: "Seu filho já poderia ler quase todas as palavras", 2: "Seu filho já poderia ler quase todas as palavras", 3: "Seu filho já poderia ler quase todas as palavras", 4: "Isso é o esperado para a idade" },
+    4: { 0: "Seu filho já poderia dominar as regras ortográficas", 1: "Seu filho já poderia dominar as regras ortográficas", 2: "Seu filho já poderia dominar as regras ortográficas", 3: "Seu filho já poderia dominar as regras ortográficas", 4: "Isso é o esperado para a idade" },
+  },
+};
 
 // ===== Screen flow =====
 type ScreenType =
@@ -270,10 +323,11 @@ const GFORM_INSTAGRAM_ENTRY = "entry.417671479";
 const GFORM_AGE_ENTRY = "entry.295870184";
 
 const GFORM_AGE_LABELS: Record<string, string> = {
-  "0-3": "0 a 3 anos",
-  "4-6": "4 a 6 anos",
-  "7-9": "7 a 9 anos",
-  "10+": "10 anos ou mais",
+  "0-2": "0 a 2 anos",
+  "3": "3 anos",
+  "4": "4 anos",
+  "5-6": "5 a 6 anos",
+  "7+": "7 anos ou mais",
 };
 
 // entry ID de cada pergunta, na MESMA ordem do array QUESTIONS (Q1..Q11)
@@ -294,11 +348,11 @@ const GFORM_QUESTION_ENTRIES = [
 // Rótulos EXATOS das opções no Google Form, na mesma ordem das opções do quiz.
 // (alguns diferem levemente dos textos exibidos no quiz; o Form exige correspondência exata)
 const GFORM_OPTION_LABELS: string[][] = [
-  ["Reconhece todas com facilidade", "Reconhece a maioria mas confunde algumas", "Reconhece poucas letras", "Ainda não reconhece nenhuma"],
-  ["Sim, sabe o som da maioria", "Sabe o nome mas confunde o som", "Raramente consegue", "Ainda não associa a letra ao som"],
-  ["Sim, forma palavras com facilidade", "Consegue mas é lento e trava bastante", "Tenta mas não consegue ainda", "Ainda não chegou nessa etapa"],
-  ["Lê com fluência e entende o que leu", "Lê devagar soletrando letra por letra", "Trava na maioria das palavras", "Ainda não tenta ler"],
-  ["Sim, escreve com poucos erros", "Escreve mas com muitos erros fonéticos", "Consegue copiar mas não escreve sozinho", "Ainda não escreve"],
+  ["Conhece todas", "Conhece a maioria", "Conhece algumas, mas confunde", "Não conhece letras"],
+  ["Sabe todos", "Sabe a maioria", "Sabe alguns sons", "Não sabe nenhum som"],
+  ["Sabe ler todas as sílabas, até as complexas", "Sabe ler todas as sílabas simples", "Sabe ler a maioria das sílabas", "Tenta ler, mas chuta algumas sílabas", "Não lê sílabas"],
+  ["Consegue ler todas as palavras", "Consegue ler quase todas as palavras", "Tenta ler, mas ainda erra", "Tenta adivinhar", "Não lê palavras"],
+  ["Escreve acertando praticamente tudo", "Escreve acertando a maioria", "Escreve com bastante erro", "Escreve sílabas ou palavras que já memorizou", "Não escreve"],
   ["Adora livros e pede para ler sempre", "Tem interesse mas desiste rápido quando trava", "Evita ler porque se frustra", "Ainda não demonstra interesse"],
   ["Sim e vejo progresso", "Sim, mas não sei se estou fazendo certo", "Tentei, mas desisti", "Ainda não tentei"],
   ["Sim, estudamos todo dia", "Às vezes, quando sobra tempo", "Tento mas não consigo manter", "Ainda não temos rotina"],
@@ -319,6 +373,7 @@ export default function QuizPage() {
   const [whatsapp, setWhatsapp] = useState("");
   const [instagram, setInstagram] = useState("");
   const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [popup, setPopup] = useState<string | null>(null);
 
   const screen = SCREENS[step];
 
@@ -349,9 +404,11 @@ export default function QuizPage() {
       if (instagram) params.append(GFORM_INSTAGRAM_ENTRY, instagram);
       if (GFORM_AGE_LABELS[age]) params.append(GFORM_AGE_ENTRY, GFORM_AGE_LABELS[age]);
       GFORM_QUESTION_ENTRIES.forEach((entryId, qi) => {
-        const weight = answers[qi];
-        if (weight === undefined) return;
-        const optIdx = QUESTIONS[qi].options.findIndex((o) => o.weight === weight);
+        const stored = answers[qi];
+        if (stored === undefined) return;
+        const q = QUESTIONS[qi];
+        // perguntas neutras guardam o índice da opção; as métricas guardam o nível (= weight)
+        const optIdx = q.neutral ? stored : q.options.findIndex((o) => o.weight === stored);
         const label = GFORM_OPTION_LABELS[qi]?.[optIdx];
         if (label) params.append(entryId, label);
       });
@@ -386,7 +443,18 @@ export default function QuizPage() {
   };
   const selectAnswer = (qIdx: number, weight: number) => {
     setAnswers((prev) => ({ ...prev, [qIdx]: weight }));
-    setTimeout(goNext, 350);
+    // Feedback instantâneo: se houver frase para (idade × pergunta × nível), mostra o popup
+    // e só avança quando a pessoa tocar em "Continuar". Senão, avança como antes.
+    const phrase = POPUP_TEXTS[age]?.[qIdx]?.[weight];
+    if (phrase) {
+      setPopup(phrase);
+    } else {
+      setTimeout(goNext, 350);
+    }
+  };
+  const dismissPopup = () => {
+    setPopup(null);
+    goNext();
   };
 
   useEffect(() => {
@@ -494,6 +562,41 @@ export default function QuizPage() {
           </Button>
         </div>
       )}
+
+      {popup && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col justify-end"
+          style={{ background: "rgba(26,92,53,0.4)", animation: "fadeIn 0.2s ease" }}
+          onClick={dismissPopup}
+        >
+          <div
+            className="rounded-t-3xl px-6 pt-6"
+            style={{
+              background: C.white,
+              boxShadow: "0 -10px 40px -10px rgba(26,92,53,0.4)",
+              paddingBottom: "calc(env(safe-area-inset-bottom) + 1.5rem)",
+              animation: "sheetUp 0.35s cubic-bezier(0.22,1,0.36,1)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-1.5 rounded-full mx-auto mb-5" style={{ background: C.greenSoft }} />
+            <p className="text-xl font-bold text-center leading-snug" style={{ color: C.green }}>
+              {popup}
+            </p>
+            <Button
+              onClick={dismissPopup}
+              fullWidth
+              size="lg"
+              radius="xl"
+              color="brand"
+              mt="lg"
+              rightSection={<IconArrowRight size={20} />}
+            >
+              Continuar
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -533,10 +636,11 @@ function H1({ children, style }: any) {
 // ===== Screens =====
 function AgeScreen({ onSelect, selected }: { onSelect: (s: string) => void; selected: string }) {
   const cards = [
-    { id: "0-3", label: "0 a 3 anos", img: age34 },
-    { id: "4-6", label: "4 a 6 anos", img: age56 },
-    { id: "7-9", label: "7 a 9 anos", img: age78 },
-    { id: "10+", label: "10 anos ou mais", img: age9 },
+    { id: "0-2", label: "0 a 2 anos", img: age34 },
+    { id: "3", label: "3 anos", img: age34 },
+    { id: "4", label: "4 anos", img: age56 },
+    { id: "5-6", label: "5 a 6 anos", img: age78 },
+    { id: "7+", label: "7 anos ou mais", img: age9 },
   ];
   return (
     <div className="min-h-full px-5 pt-2 pb-8 flex flex-col">
@@ -960,14 +1064,12 @@ function ResultScreen({ name, level, answers, age }: { name: string; level: numb
   const info = LEVEL_TEXTS[level];
   const firstName = (name || "Olá").split(" ")[0];
   const ageText = AGE_LEVEL_TEXTS[`${age}-${level}`] || "";
-  // Radar 6 axes
+  // Radar 4 axes — normaliza cada eixo pelo seu teto (Alfabeto/Sons até 3; Leitura/Escrita até 4)
   const skills = [
-    { label: "Letras", value: ((answers[0] ?? 1) / 5) * 0.9 },
-    { label: "Sons", value: ((answers[1] ?? 1) / 5) * 0.9 },
-    { label: "Sílabas", value: ((answers[2] ?? 1) / 5) * 0.9 },
-    { label: "Fluência", value: ((answers[3] ?? 1) / 5) * 0.9 },
-    { label: "Rotina", value: ((answers[7] ?? 1) / 5) * 0.9 },
-    { label: "Emoção", value: ((answers[10] ?? 1) / 5) * 0.9 },
+    { label: "Alfabeto", value: ((answers[0] ?? 0) / 3) * 0.9 },
+    { label: "Sons", value: ((answers[1] ?? 0) / 3) * 0.9 },
+    { label: "Leitura", value: ((answers[3] ?? 0) / 4) * 0.9 },
+    { label: "Escrita", value: ((answers[4] ?? 0) / 4) * 0.9 },
   ];
   const startPct = [15, 30, 50, 65, 80][level - 1] ?? 30;
 
