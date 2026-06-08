@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import age34 from "@/assets/age-3-4.jpg";
+import age3 from "@/assets/age-3.png";
 import age56 from "@/assets/age-5-6.jpg";
 import age78 from "@/assets/age-7-8.jpg";
 import age9 from "@/assets/age-9-plus.jpg";
@@ -203,7 +204,7 @@ const POPUP_TEXTS: Record<string, Record<number, Record<number, string>>> = {
 type ScreenType =
   | "age" | "social" | "benefit" | "name" | "whatsapp" | "instagram"
   | "question" | "interstitial" | "interstitial2" | "stat"
-  | "processing" | "projection" | "result" | "sales";
+  | "processing" | "result" | "sales";
 
 type Screen = { type: ScreenType; qIndex?: number };
 
@@ -229,73 +230,208 @@ const SCREENS: Screen[] = [
   { type: "question", qIndex: 9 },   // 18 — Q10
   { type: "question", qIndex: 10 },  // 19 — Q11
   { type: "processing" },            // 20
-  { type: "projection" },            // 21
-  { type: "result" },                // 22
-  { type: "sales" },                 // 23
+  { type: "result" },                // 21
+  { type: "sales" },                 // 22
 ];
 
 const TOTAL_QUESTIONS = QUESTIONS.length; // 11
 
-const LEVEL_TEXTS: Record<number, { name: string; tagColor: string; diag: string; pitch: string; weeks: number }> = {
+const LEVEL_TEXTS: Record<number, { name: string; tagColor: string; diag: string; pitch: string }> = {
   1: {
     name: "Nível 1 — Pré-leitor",
     tagColor: "#e89a8c",
-    weeks: 12,
     diag: "Seu filho está no início da jornada. E isso é ótimo. Não há atraso — há uma oportunidade enorme de construir uma base sólida desde o começo, do jeito certo.",
     pitch: "Na masterclass você vai aprender exatamente por onde começar, os primeiros sons que ele precisa dominar e como criar uma rotina de 15 minutos que vai funcionar desde o primeiro dia.",
   },
   2: {
     name: "Nível 2 — Iniciante",
     tagColor: "#f0b27a",
-    weeks: 10,
     diag: "Seu filho deu o primeiro passo. Agora precisa do método certo para avançar. Reconhecer a letra não é o mesmo que saber o som dela — e essa é a etapa onde a maioria das crianças trava.",
     pitch: "Na masterclass você vai entender o que está faltando para seu filho avançar da fase das letras para a fase da leitura.",
   },
   3: {
     name: "Nível 3 — Em desenvolvimento",
     tagColor: "#f4d35e",
-    weeks: 8,
     diag: "Seu filho está quase lá. Ele só precisa de um empurrão no lugar certo. O desafio agora é a junção: transformar sons em sílabas e sílabas em palavras.",
     pitch: "Na masterclass você vai aprender como guiar seu filho nessa transição com a sequência certa e atividades práticas.",
   },
   4: {
     name: "Nível 4 — Leitor em progresso",
     tagColor: "#a8e0bc",
-    weeks: 6,
     diag: "Seu filho já lê. Agora é hora de ganhar fluidez e confiança. Ler soletrando ainda gera frustração — o próximo passo é automatizar o que ele já sabe.",
     pitch: "Na masterclass você vai aprender como ajudar seu filho a passar de leitura lenta para uma leitura fluente.",
   },
   5: {
     name: "Nível 5 — Leitor em consolidação",
     tagColor: "#1a5c35",
-    weeks: 4,
     diag: "Seu filho já é um leitor. Agora vamos consolidar essa habilidade. Os erros pontuais que ainda aparecem têm solução específica.",
     pitch: "Na masterclass você vai aprender como identificar e trabalhar as lacunas específicas do seu filho.",
   },
 };
 
-const AGE_LEVEL_TEXTS: Record<string, string> = {
-  "0-3-1": "Seu filho ainda está na fase pré-leitora — e isso é completamente normal para a idade. Crianças de 0 a 3 anos estão desenvolvendo a base que vai sustentar toda a alfabetização. O mais importante agora é estimular a audição e o vocabulário através de músicas, histórias e conversas. Você está no momento certo para começar.",
-  "0-3-2": "Para a idade do seu filho, ele já está mostrando sinais muito positivos. Reconhecer letras antes dos 4 anos é um indicativo excelente. Agora o foco é garantir que ele aprenda os sons certos de cada letra, não apenas os nomes. Esse detalhe vai fazer toda a diferença quando a leitura começar.",
-  "0-3-3": "Impressionante. Seu filho já está juntando sílabas com menos de 4 anos. Isso mostra que ele tem uma base forte e muita capacidade. O cuidado agora é não apressar — respeite o ritmo dele e garanta que cada etapa esteja bem consolidada antes de avançar.",
-  "0-3-4": "Seu filho está lendo antes dos 4 anos. Isso é extraordinário e indica um desenvolvimento muito acima da média. O próximo passo é trabalhar a fluência de forma lúdica, sem pressão, para que a leitura seja sempre uma experiência prazerosa para ele.",
-  "0-3-5": "Seu filho está lendo com consolidação antes dos 4 anos. Isso é raro e merece ser celebrado. Agora o desafio é manter o ambiente estimulante sem sobrecarregar. Livros variados, histórias em voz alta e jogos de linguagem vão nutrir esse talento de forma saudável.",
-  "4-6-1": "Seu filho está na janela ideal para começar a alfabetização. Não há atraso — há uma oportunidade enorme. Crianças que iniciam a instrução fônica entre 4 e 6 anos com uma base sólida chegam à escola lendo com confiança e muito à frente da maioria. Comece pelos sons das vogais ainda essa semana.",
-  "4-6-2": "Seu filho já reconhece as letras — um ótimo começo para a faixa etária. O próximo passo é garantir que ele aprenda o som de cada letra, não apenas o nome. Essa transição é o coração do método fônico e, quando feita certo, desbloqueia a leitura rapidamente.",
-  "4-6-3": "Seu filho está na fase mais importante da alfabetização — e no momento certo da vida para passar por ela. Ele já sabe os sons, agora precisa aprender a juntá-los. Com uma rotina de 15 minutos por dia ele vai estar lendo palavras reais em poucas semanas.",
-  "4-6-4": "Seu filho já lê entre 4 e 6 anos — isso é muito bom. O foco agora é a fluência: fazer a leitura se tornar automática e prazerosa. Leitura em voz alta todos os dias com livros no nível certo vai acelerar muito esse processo.",
-  "4-6-5": "Seu filho já é um leitor consolidado antes dos 7 anos. Você fez um trabalho incrível. Agora é hora de ampliar o repertório com livros cada vez mais ricos e estimular a compreensão do que ele lê, não apenas a decodificação.",
-  "7-9-1": "Vamos ser honestas: um filho de 7 a 9 anos ainda na fase pré-leitora precisa de atenção agora. Não é hora de esperar a escola resolver. O método fônico aplicado de forma consistente em casa tem potencial de transformar esse quadro em poucas semanas. O primeiro passo é hoje.",
-  "7-9-2": "Seu filho reconhece as letras mas ainda não associa os sons — isso é uma lacuna que precisa ser resolvida com urgência nessa faixa etária. A boa notícia é que com o método certo essa etapa costuma ser superada rapidamente. Foco nos sons antes de qualquer outra coisa.",
-  "7-9-3": "Seu filho está progredindo mas precisa acelerar o ritmo. Na faixa dos 7 a 9 anos, travar na junção das sílabas começa a impactar o desempenho escolar em todas as matérias. Uma rotina estruturada de instrução fônica vai resolver isso antes que vire um problema maior.",
-  "7-9-4": "Seu filho lê — e isso é ótimo. O desafio agora é sair da leitura soletada para uma leitura fluente, porque na faixa dos 7 a 9 anos a velocidade de leitura começa a impactar a compreensão de textos na escola. Prática diária com textos curtos é o caminho mais rápido.",
-  "7-9-5": "Seu filho está com uma base excelente para a faixa etária. Agora o foco deve ser a compreensão leitora — entender o que lê com profundidade, fazer inferências e desenvolver o pensamento crítico através dos textos.",
-  "10+-1": "Precisamos conversar com honestidade. Um filho de 10 anos ou mais ainda na fase pré-leitora tem lacunas acumuladas que precisam ser resolvidas com um método estruturado e consistente. Não é hora de julgamento — é hora de ação. O método fônico funciona em qualquer idade e pode mudar esse quadro. Mas precisa começar hoje.",
-  "10+-2": "Com 10 anos ou mais reconhecendo letras mas sem dominar os sons, há uma lacuna clara que a escola provavelmente não identificou — ou identificou mas não resolveu. O método fônico vai direto ao ponto: ensinar os sons que faltam, na sequência certa, sem enrolação. Essa base pode ser construída em semanas.",
-  "10+-3": "Seu filho já avançou bastante mas ainda trava na junção. Com 10 anos ou mais, essa dificuldade já impacta a leitura de textos escolares e a compreensão em todas as matérias. A boa notícia é que crianças mais velhas costumam avançar muito rápido quando entendem o método — porque a maturidade ajuda.",
-  "10+-4": "Seu filho lê mas ainda com dificuldade. Com 10 anos ou mais, a fluência de leitura é essencial para acompanhar o conteúdo escolar com tranquilidade. O foco agora é consolidar o que ele já sabe e eliminar os travamentos que ainda aparecem — isso é totalmente possível com uma rotina estruturada.",
-  "10+-5": "Seu filho tem uma base sólida de leitura. Com 10 anos ou mais nesse nível, o próximo passo é desenvolver a leitura crítica e a interpretação de textos mais complexos. Isso vai fazer diferença não só na escola, mas na vida inteira dele.",
+// ===== "Próximos passos" — plano de ação por idade × nível =====
+type StepSection = { label: string; text: string; bullets?: string[] };
+type NextStep = { steps: StepSection[]; promise: string; cta?: boolean };
+
+// Trechos reaproveitados entre várias faixas/níveis.
+const S_CF = "Ensine os sonzinhos da fala, 1 por dia, com as fichas dos sons e brincadeiras lúdicas. Diga palavras enfatizando o som inicial e peça para a criança repetir.";
+const S_PA_F = "Mostre que as letras fazem sons. Por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.”";
+const S_PA_SIS = "Ensine de forma sistemática que as letras fazem sons. Por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.”";
+const S_ESCRITA_VELA = "Ensine o traçado em letra bastão de cada letra, conforme o padrão, e a escrever palavrinhas. Dite palavras pronunciando os sons devagar, como “vvvveeeellla”, para a criança escrever.";
+const S_LEITURA_2SIL = "A prática é a sua principal aliada agora. Pratique a leitura de palavras de 2 sílabas com consoantes de sons longos. Depois, aumente a dificuldade com palavras mais longas ou com consoantes de sons curtos. Selecione bem as palavras: não apresente uma palavra complexa sem antes ensinar a regra ortográfica por trás dela. Por exemplo, não mostre “anjo” antes de ensinar que o N pode nasalizar o som da vogal A. Introduza as sílabas mais complexas aos poucos, sempre de forma explícita.";
+const S_ESCRITA_SACOLA = "Pratique o traçado em letra bastão e cursiva de cada letra, conforme o padrão, e a escrita de palavras ditadas. Dite palavras pronunciando os sons devagar, como “sacola”, para a criança escrever.";
+const ORTHO_RULES = [
+  "Vogais nasais (Am, An, Em, En, etc.)",
+  "Lh, Nh, Ch",
+  "L com som [u]",
+  "C com som [s]",
+  "Ç",
+  "G com som de J",
+  "Uso do GU",
+  "Uso do QU",
+  "Os sons da letra R",
+  "O RR",
+  "S com som [z]",
+  "O SS",
+  "Os sons da letra X",
+];
+const S_PROMISE_SIMPLES = "Com 15 minutos por dia, em 3 meses seu filho será capaz de ler e escrever palavras simples.";
+const S_PROMISE_AMPLA = "Com 15 minutos por dia, em 3 meses seu filho será capaz de ler e escrever uma ampla variedade de palavras.";
+
+// Cada faixa tem uma lista de textos; NEXT_STEPS_INDEX[idade][nível 0..4] aponta qual texto usar.
+const NEXT_STEPS: Record<string, NextStep[]> = {
+  "0-2": [
+    {
+      steps: [
+        { label: "Consciência Fonêmica", text: "Agora é hora de ensinar os sonzinhos da fala — um de cada vez. Ensine 1 sonzinho por dia usando as fichas dos sons e transformando isso em brincadeira, para que o aprendizado seja sempre leve e divertido. Diga palavras enfatizando o som inicial e peça para a criança repetir." },
+      ],
+      promise: "Com apenas 15 minutos por dia, seu filho vai aprender todos os sonzinhos em menos de 2 meses.",
+      cta: true,
+    },
+    {
+      steps: [
+        { label: "Consciência Fonêmica", text: "Seu filho já está à frente — vamos aproveitar esse ritmo. Continue ensinando os sonzinhos da fala, 1 por dia, com as fichas dos sons e brincadeiras lúdicas, sempre enfatizando o som inicial das palavras para a criança repetir." },
+        { label: "Princípio Alfabético", text: "Agora dê o próximo passo: mostre que as letras fazem sons. Por exemplo: “A letra F faz o som ‘fff’, como o barulho de assoprar o fogo.”" },
+      ],
+      promise: "Com 15 minutos por dia, em menos de 2 meses seu filho vai dominar todos os sonzinhos e começar a associá-los às letras — o que vai potencializar tanto a leitura quanto a escrita.",
+      cta: true,
+    },
+  ],
+  "3": [
+    {
+      steps: [
+        { label: "Consciência Fonêmica", text: S_CF },
+        { label: "Princípio Alfabético", text: "Mostre que as letras fazem sons. Comece pelas 5 vogais e seus 7 sons orais: A (ááá), E (ééé, êêê), I (iii), O (óóó, ôôô) e U (uuu). Por exemplo: “A letra U faz o som ‘uuuu’, como o macaquinho.”" },
+        { label: "Leitura", text: "Ensine a juntar os sonzinhos formando sílabas. Escreva sílabas com as vogais e ensine a ler. Dê sempre o exemplo e repita o processo: passe o dedo sobre cada letra pronunciando seu sonzinho devagar e, depois, diga a sílaba/palavra de forma contínua." },
+        { label: "Escrita", text: "Ensine o traçado em letra bastão de cada vogal, conforme o padrão, e a escrever palavrinhas só com vogais. Dite palavras como “ai, oi, ioiô, ui, eu” para a criança escrever." },
+      ],
+      promise: "Com 15 minutos por dia, em 3 meses seu filho será capaz de ler e escrever com as vogais e conhecerá todos os sonzinhos.",
+      cta: true,
+    },
+    {
+      steps: [
+        { label: "Princípio Alfabético", text: "Ensine que as letras fazem sons, 1 letra por dia. Por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.” Faça isso com todas as letras do alfabeto." },
+        { label: "Leitura", text: "Conforme avança, ensine a juntar os sonzinhos formando sílabas. Comece pelas consoantes de sons longos (v, f, s, z, j, x, l, m, n, r): passe o dedo sobre cada letra pronunciando seu sonzinho devagar e, depois, diga a sílaba/palavra de forma contínua. Em seguida, avance para as consoantes de sons curtos." },
+        { label: "Escrita", text: S_ESCRITA_VELA },
+      ],
+      promise: S_PROMISE_SIMPLES,
+      cta: true,
+    },
+  ],
+  "5-6": [
+    {
+      steps: [
+        { label: "Consciência Fonêmica", text: S_CF },
+        { label: "Princípio Alfabético", text: S_PA_F },
+        { label: "Leitura", text: "Conforme avança, ensine a juntar os sonzinhos formando sílabas. Comece pelas consoantes de sons longos (v, f, s, z, j, x, l, m, n, r): passe o dedo sobre cada letra pronunciando seu sonzinho devagar e, depois, diga a sílaba/palavra de forma contínua. Em seguida, avance para as consoantes de sons curtos." },
+        { label: "Escrita", text: S_ESCRITA_VELA },
+      ],
+      promise: S_PROMISE_SIMPLES,
+      cta: true,
+    },
+    {
+      steps: [
+        { label: "Consciência Fonêmica", text: S_CF },
+        { label: "Princípio Alfabético", text: S_PA_SIS },
+        { label: "Leitura", text: S_LEITURA_2SIL },
+        { label: "Escrita", text: S_ESCRITA_SACOLA },
+      ],
+      promise: S_PROMISE_AMPLA,
+      cta: true,
+    },
+    {
+      steps: [
+        { label: "Princípio Alfabético", text: S_PA_SIS },
+        { label: "Regras ortográficas", text: "Ensine as relações mais complexas entre letras e sons. Por exemplo, a letra C pode fazer o som “k-k-k” e “sss”. O ensino deve ser explícito e lúdico, 1 regra por semana. Algumas delas:", bullets: ORTHO_RULES },
+        { label: "Leitura", text: "Conforme as regras ortográficas vão sendo ensinadas, pratique a leitura de palavras e pequenos textos. Não force a leitura de palavras complexas antes de ensinar a regra correspondente." },
+        { label: "Escrita", text: "Continue praticando o traçado em letra bastão e cursiva, conforme o padrão, e a escrita de palavras ditadas. Dite palavras cada vez mais complexas à medida que a criança domina as regras ortográficas." },
+      ],
+      promise: "Com 15 minutos por dia, em 4 meses seu filho será capaz de ler e escrever palavras complexas.",
+      cta: true,
+    },
+  ],
+  "7+": [
+    {
+      steps: [
+        { label: "Consciência Fonêmica", text: S_CF },
+        { label: "Princípio Alfabético", text: S_PA_F },
+        { label: "Leitura", text: "Ensine a juntar os sonzinhos formando sílabas. Comece pelas consoantes de sons longos (v, f, s, z, j, x, l, m, n, r): passe o dedo sobre cada letra pronunciando seu sonzinho devagar e, depois, diga a sílaba/palavra de forma contínua. Em seguida, avance para as consoantes de sons curtos." },
+        { label: "Escrita", text: S_ESCRITA_VELA },
+      ],
+      promise: S_PROMISE_SIMPLES,
+      cta: true,
+    },
+    {
+      steps: [
+        { label: "Consciência Fonêmica", text: S_CF },
+        { label: "Princípio Alfabético", text: S_PA_SIS },
+        { label: "Leitura", text: S_LEITURA_2SIL },
+        { label: "Escrita", text: S_ESCRITA_SACOLA },
+      ],
+      promise: S_PROMISE_AMPLA,
+      cta: true,
+    },
+    {
+      steps: [
+        { label: "Princípio Alfabético", text: S_PA_SIS },
+        { label: "Regras ortográficas", text: "Ensine as relações mais complexas entre letras e sons. Por exemplo, a letra C pode fazer o som “k-k-k” e “sss”. O ensino deve ser explícito e lúdico, 1 regra por semana. Algumas delas:", bullets: ORTHO_RULES },
+        { label: "Leitura", text: "Conforme as regras ortográficas vão sendo ensinadas, pratique a leitura de palavras e pequenos textos. Não force a leitura de palavras complexas antes de ensinar a regra correspondente." },
+        { label: "Escrita", text: "Continue praticando o traçado em letra bastão e cursiva, conforme o padrão, e a escrita de palavras ditadas. Dite palavras cada vez mais complexas à medida que a criança domina as regras ortográficas." },
+      ],
+      promise: "Com 15 minutos por dia, em 3 meses seu filho será capaz de ler e escrever palavras complexas.",
+      cta: true,
+    },
+    {
+      steps: [
+        { label: "Princípio Alfabético", text: S_PA_SIS },
+        { label: "Regras ortográficas", text: "Continue praticando as relações complexas entre letras e sons. Por exemplo, a letra C pode fazer o som “k-k-k” e “sss”. O ensino deve ser explícito e lúdico; relembre 2 regras por semana. Algumas delas:", bullets: ORTHO_RULES },
+        { label: "Leitura", text: "Continue praticando a escrita de palavras complexas e pratique a leitura oral de textos todos os dias, cuidando da entonação e da prosódia." },
+        { label: "Escrita", text: "Continue praticando o traçado cursivo de cada letra, conforme o padrão. Trabalhe a escrita de pequenos textos pelo menos 3× por semana, com atenção à ortografia e à gramática." },
+      ],
+      promise: "Com 15 minutos por dia, em 3 meses seu filho será capaz de ler e escrever textos com fluência.",
+      cta: false,
+    },
+  ],
 };
+// Faixa "4" usa o mesmo plano da faixa "3".
+NEXT_STEPS["4"] = NEXT_STEPS["3"];
+
+// Para cada idade, qual texto (índice em NEXT_STEPS[idade]) mostrar conforme o nível 0..4.
+const NEXT_STEPS_INDEX: Record<string, number[]> = {
+  "0-2": [0, 1, 1, 1, 1],
+  "3":   [0, 0, 1, 1, 1],
+  "4":   [0, 0, 1, 1, 1],
+  "5-6": [0, 0, 1, 2, 2],
+  "7+":  [0, 0, 1, 2, 3],
+};
+
+function nextStepFor(age: string, answers: Record<number, number>): NextStep | null {
+  const list = NEXT_STEPS[age];
+  const idxMap = NEXT_STEPS_INDEX[age];
+  if (!list || !idxMap) return null;
+  const tier = levelTier(metricTotal(answers));
+  return list[idxMap[tier]] ?? null;
+}
 
 // Placar 0..18: somam apenas as 5 perguntas-métrica (Q1+Q2 vão até 3, Q3+Q4+Q5 até 4).
 // As 6 perguntas seguintes são neutras e não pontuam.
@@ -312,8 +448,8 @@ function levelFromScore(s: number): number {
 // Derivado dos popups (ponto onde a frase vira "Isso é o esperado para a idade").
 const EXPECTED_BY_AGE: Record<string, number[]> = {
   "0-2": [0, 0, 0, 0, 0],
-  "3":   [1, 1, 1, 1, 1],
-  "4":   [2, 2, 2, 2, 2],
+  "3":   [1, 3, 1, 1, 1],
+  "4":   [2, 3, 2, 2, 2],
   "5-6": [3, 3, 3, 3, 3],
   "7+":  [3, 3, 4, 4, 4],
 };
@@ -338,10 +474,35 @@ function relativeBand(score: number): { levels: number; tone: "ahead" | "on" | "
   return { levels, tone: "behind" };
 }
 
-function futureDateInWeeks(weeks: number) {
-  const d = new Date();
-  d.setDate(d.getDate() + weeks * 7);
-  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+// Pontuação amigável (FLOOR..100, nunca chega a 0).
+// Mistura dois sinais: o ABSOLUTO (quanto a criança sabe, 0..18) e o RELATIVO à idade (−18..+18).
+// O componente absoluto faz cada idade aproveitar mais a barra (chegar perto de 100 e do piso);
+// o relativo mantém a lógica de que, no mesmo nível, o mais novo pontua mais.
+const SCORE_FLOOR = 10; // piso: ninguém pontua abaixo disso
+const SCORE_CEIL = 90;  // teto: ninguém chega a 100
+const ABS_WEIGHT = 0.4; // 0 = só relativo à idade · 1 = só absoluto
+function relativePercent(answers: Record<number, number>, age: string): number {
+  const absT = metricTotal(answers) / 18;            // 0..1  (desempenho absoluto)
+  const relT = (relativeScore(answers, age) + 18) / 36; // 0..1  (posição para a idade)
+  const t = ABS_WEIGHT * absT + (1 - ABS_WEIGHT) * relT;
+  const pct = Math.round(SCORE_FLOOR + t * (SCORE_CEIL - SCORE_FLOOR));
+  return Math.max(SCORE_FLOOR, Math.min(SCORE_CEIL, pct));
+}
+
+// Soma das 5 perguntas-métrica (0..18).
+function metricTotal(answers: Record<number, number>): number {
+  let s = 0;
+  for (let q = 0; q < 5; q++) s += answers[q] ?? 0;
+  return s;
+}
+
+// Converte a soma (0..18) num "nível" de 0 a 4, que decide qual texto de "Próximos passos" mostrar.
+function levelTier(total: number): number {
+  if (total <= 2) return 0;
+  if (total <= 6) return 1;
+  if (total <= 11) return 2;
+  if (total <= 15) return 3;
+  return 4;
 }
 
 // ===== Integração com o Google Form =====
@@ -424,10 +585,10 @@ export default function QuizPage() {
     setStep((s) => Math.max(s - 1, 0));
   };
 
-  // Envia as respostas ao Google Form ao chegar na tela de projeção (uma única vez)
+  // Envia as respostas ao Google Form ao chegar na tela de resultado (uma única vez)
   const [submitted, setSubmitted] = useState(false);
   useEffect(() => {
-    if (screen.type !== "projection" || submitted) return;
+    if (screen.type !== "result" || submitted) return;
     setSubmitted(true);
     try {
       const params = new URLSearchParams();
@@ -509,7 +670,7 @@ export default function QuizPage() {
 
   const showFooter = [
     "social", "benefit", "name", "whatsapp", "instagram",
-    "interstitial", "interstitial2", "stat", "projection", "result",
+    "interstitial", "interstitial2", "stat", "result",
   ].includes(screen.type);
   const showBack = step > 0 && screen.type !== "processing" && screen.type !== "sales";
 
@@ -588,7 +749,6 @@ export default function QuizPage() {
             rightSection={<IconArrowRight size={20} />}
           >
             {screen.type === "interstitial2" ? "Entendi"
-              : screen.type === "projection" ? "Ver meu diagnóstico completo"
               : screen.type === "result" ? "Ver o próximo passo"
               : "Continuar"}
           </Button>
@@ -654,11 +814,107 @@ function ScreenContent(props: any) {
     case "interstitial2": return <Interstitial2Screen />;
     case "stat": return <StatScreen />;
     case "processing": return <ProcessingScreen name={props.name} />;
-    case "projection": return <ProjectionScreen level={props.level} />;
     case "result": return <ResultScreen name={props.name} level={props.level} answers={props.answers} age={props.age} />;
-    case "sales": return props.level === 1 ? <SalesScreenL1 name={props.name} /> : <SalesScreen />;
+    case "sales": return <SalesRouter answers={props.answers} age={props.age} />;
     default: return null;
   }
+}
+
+// ===== Páginas de vendas em VSL (3 posições) =====
+// Cada posição tem sua própria VSL (vídeo) + botão que aparece após X segundos.
+// Quando a VSL de cada posição estiver pronta, preencha: playerHtml (div do player),
+// scriptSrc (script do VTurb/Converteai), revealSeconds, ctaHref e ctaText.
+type VslConfig = {
+  headline: string;
+  subhead?: string;
+  revealSeconds: number;   // segundos até o botão de compra aparecer
+  ctaText: string;
+  ctaHref: string;
+  playerHtml?: string;     // HTML do player (ex.: <div id="vid_xxx"></div>) — cole aqui
+  scriptSrc?: string;      // src do script do player — cole aqui
+};
+
+const SALES_VSL: Record<"behind" | "on" | "ahead", VslConfig> = {
+  behind: {
+    headline: "Existe um motivo científico para o seu filho ainda não ler como deveria, e a solução não está na escola. Está nas suas mãos.",
+    revealSeconds: 600,
+    ctaText: "QUERO COMEÇAR AGORA",
+    ctaHref: "#",
+    // playerHtml: '<div id="vid_BEHIND"></div>',
+    // scriptSrc: 'https://scripts.converteai.net/.../player.js',
+  },
+  on: {
+    headline: "Seu filho está no caminho certo. Veja como transformar esse bom momento em leitura fluente.",
+    revealSeconds: 600,
+    ctaText: "QUERO AVANÇAR AGORA",
+    ctaHref: "#",
+  },
+  ahead: {
+    headline: "Seu filho está à frente para a idade. Veja como não desperdiçar esse potencial.",
+    revealSeconds: 600,
+    ctaText: "QUERO POTENCIALIZAR AGORA",
+    ctaHref: "#",
+  },
+};
+
+// Escolhe a página de vendas conforme a POSIÇÃO da criança para a idade (behind/on/ahead),
+// que é o que define o estado emocional do pai — o maior driver de conversão.
+function SalesRouter({ answers, age }: { answers: Record<number, number>; age: string }) {
+  const tone = relativeBand(relativeScore(answers, age)).tone;
+  return <VslSalesScreen cfg={SALES_VSL[tone]} />;
+}
+
+function VslSalesScreen({ cfg }: { cfg: VslConfig }) {
+  const [showCta, setShowCta] = useState(false);
+
+  // Botão de compra aparece após revealSeconds (contado a partir do carregamento da página).
+  useEffect(() => {
+    const t = setTimeout(() => setShowCta(true), cfg.revealSeconds * 1000);
+    return () => clearTimeout(t);
+  }, [cfg.revealSeconds]);
+
+  // Injeta o script do player (VTurb/Converteai), se configurado.
+  useEffect(() => {
+    if (!cfg.scriptSrc) return;
+    const s = document.createElement("script");
+    s.src = cfg.scriptSrc;
+    s.async = true;
+    document.body.appendChild(s);
+    return () => { document.body.removeChild(s); };
+  }, [cfg.scriptSrc]);
+
+  return (
+    <div className="min-h-full px-5 pt-6 pb-10">
+      <div className="max-w-2xl mx-auto space-y-6 text-center">
+        <H1>{cfg.headline}</H1>
+        {cfg.subhead && <p className="text-base" style={{ color: C.warm }}>{cfg.subhead}</p>}
+
+        {/* Área do vídeo (VSL) */}
+        <div className="rounded-2xl overflow-hidden" style={{ border: `2px solid ${C.mint}`, boxShadow: `0 20px 40px -24px rgba(26,92,53,0.25)` }}>
+          {cfg.playerHtml ? (
+            <div dangerouslySetInnerHTML={{ __html: cfg.playerHtml }} />
+          ) : (
+            <div className="aspect-video flex items-center justify-center text-sm" style={{ background: C.mintLight, color: C.warm }}>
+              [ VSL aqui — cole o embed do player ]
+            </div>
+          )}
+        </div>
+
+        {/* Botão de compra (aparece após revealSeconds) */}
+        {showCta ? (
+          <a
+            href={cfg.ctaHref}
+            className="block w-full rounded-2xl py-4 text-lg font-bold transition active:scale-[0.98]"
+            style={{ background: C.green, color: C.white }}
+          >
+            {cfg.ctaText}
+          </a>
+        ) : (
+          <p className="text-sm" style={{ color: C.warm }}>Assista ao vídeo até o final para liberar o seu acesso.</p>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function H1({ children, style }: any) {
@@ -669,7 +925,7 @@ function H1({ children, style }: any) {
 function AgeScreen({ onSelect, selected }: { onSelect: (s: string) => void; selected: string }) {
   const cards = [
     { id: "0-2", label: "0 a 2 anos", img: age34 },
-    { id: "3", label: "3 anos", img: age34 },
+    { id: "3", label: "3 anos", img: age3 },
     { id: "4", label: "4 anos", img: age56 },
     { id: "5-6", label: "5 a 6 anos", img: age78 },
     { id: "7+", label: "7 anos ou mais", img: age9 },
@@ -1010,93 +1266,15 @@ function ProcessingScreen({ name }: { name: string }) {
   );
 }
 
-// ===== Screen 17 — Projeção =====
-function ProjectionScreen({ level }: { level: number }) {
-  const info = LEVEL_TEXTS[level];
-  const dateLabel = futureDateInWeeks(info.weeks);
-  // Starting level percentage based on level
-  const startPct = [15, 30, 50, 65, 80][level - 1] ?? 30;
-  return (
-    <div className="min-h-full px-5 pt-4 pb-8">
-      <div className="max-w-xl mx-auto space-y-5">
-        <H1>O diagnóstico do seu filho está pronto.</H1>
-        <p className="text-base" style={{ color: C.warm }}>Prevemos que seu filho vai estar lendo com fluência em:</p>
-        <div className="text-3xl md:text-4xl font-bold" style={{ color: C.green }}>
-          {info.weeks} semanas
-          <div className="text-base font-semibold mt-1" style={{ color: C.greenMid }}>{dateLabel}*</div>
-        </div>
-
-        <div className="rounded-3xl bg-white p-5" style={{ border: `2px solid ${C.mint}`, boxShadow: `0 20px 40px -24px rgba(26,92,53,0.25)` }}>
-          <ProgressCurve startPct={startPct} weeks={info.weeks} />
-          <div className="flex justify-between text-xs mt-2" style={{ color: C.warm }}>
-            <span>Agora</span>
-            <span>Meta</span>
-          </div>
-        </div>
-
-        <p className="text-xs" style={{ color: C.warm }}>
-          *Este gráfico é apenas ilustrativo. O progresso real depende da consistência da rotina em casa.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function ProgressCurve({ startPct, weeks }: { startPct: number; weeks: number }) {
-  const W = 320, H = 180, P = 28;
-  const x0 = P, x1 = W - P, y0 = H - P, y1 = P;
-  const startY = y0 - ((startPct / 100) * (y0 - y1));
-  // Cubic bezier rising
-  const cx1 = x0 + (x1 - x0) * 0.4;
-  const cy1 = startY;
-  const cx2 = x0 + (x1 - x0) * 0.6;
-  const cy2 = y1 + 10;
-  const path = `M ${x0} ${startY} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x1} ${y1}`;
-  const area = `${path} L ${x1} ${y0} L ${x0} ${y0} Z`;
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full">
-      <defs>
-        <linearGradient id="curveGrad" x1="0" x2="1" y1="0" y2="0">
-          <stop offset="0%" stopColor="#d97766" />
-          <stop offset="50%" stopColor="#f0b27a" />
-          <stop offset="100%" stopColor={C.green} />
-        </linearGradient>
-        <linearGradient id="areaGrad" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor={C.greenMid} stopOpacity="0.35" />
-          <stop offset="100%" stopColor={C.greenMid} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      {/* grid */}
-      {[0, 1, 2, 3].map((i) => (
-        <line key={i} x1={x0} x2={x1} y1={y0 - (i * (y0 - y1)) / 3} y2={y0 - (i * (y0 - y1)) / 3} stroke={C.mintLight} strokeWidth="1" />
-      ))}
-      <path d={area} fill="url(#areaGrad)" />
-      <path d={path} fill="none" stroke="url(#curveGrad)" strokeWidth="3" strokeLinecap="round" />
-      {/* start point */}
-      <circle cx={x0} cy={startY} r="6" fill="#d97766" stroke="white" strokeWidth="2" />
-      <g>
-        <rect x={x0 + 8} y={startY - 26} width="62" height="20" rx="6" fill="white" stroke={C.mint} />
-        <text x={x0 + 39} y={startY - 12} fontSize="10" textAnchor="middle" fill={C.warm}>{startPct}%</text>
-      </g>
-      {/* end point */}
-      <circle cx={x1} cy={y1} r="6" fill={C.green} stroke="white" strokeWidth="2" />
-      <g>
-        <rect x={x1 - 86} y={y1 - 4} width="80" height="20" rx="6" fill="white" stroke={C.mint} />
-        <text x={x1 - 46} y={y1 + 10} fontSize="10" textAnchor="middle" fill={C.green} fontWeight="700">Leitura fluente</text>
-      </g>
-      {/* x labels */}
-      <text x={x0} y={H - 6} fontSize="9" fill={C.warm}>hoje</text>
-      <text x={x1} y={H - 6} fontSize="9" fill={C.warm} textAnchor="end">+{weeks} sem</text>
-    </svg>
-  );
-}
-
-// ===== Screen 18 — Resultado personalizado =====
+// ===== Resultado personalizado =====
 function ResultScreen({ name, level, answers, age }: { name: string; level: number; answers: Record<number, number>; age: string }) {
   const info = LEVEL_TEXTS[level];
   const firstName = (name || "Olá").split(" ")[0];
   // Diagnóstico relativo à idade (independente do estágio que escolhe a página de vendas)
-  const rel = relativeBand(relativeScore(answers, age));
+  const rawRel = relativeScore(answers, age);
+  const rel = relativeBand(rawRel);
+  const pct = relativePercent(answers, age);
+  const nextStep = nextStepFor(age, answers);
   const relN = Math.abs(rel.levels);
   const relNoun = relN === 1 ? "nível" : "níveis";
   const relHeadline =
@@ -1118,7 +1296,6 @@ function ResultScreen({ name, level, answers, age }: { name: string; level: numb
     { label: "Leitura", value: ((answers[3] ?? 0) / 4) * 0.9 },
     { label: "Escrita", value: ((answers[4] ?? 0) / 4) * 0.9 },
   ];
-  const startPct = [15, 30, 50, 65, 80][level - 1] ?? 30;
 
   return (
     <div className="min-h-full px-5 pt-4 pb-8">
@@ -1130,23 +1307,16 @@ function ResultScreen({ name, level, answers, age }: { name: string; level: numb
           {info.name.toUpperCase()}
         </div>
 
-        <div className="rounded-3xl bg-white p-5" style={{ border: `2px solid ${C.mint}`, boxShadow: `0 12px 30px -20px rgba(26,92,53,0.25)` }}>
-          <div className="text-xs font-semibold mb-2" style={{ color: C.warm }}>Progresso previsto da leitura</div>
-          <ProgressCurve startPct={startPct} weeks={info.weeks} />
-          <ul className="mt-4 space-y-2 text-sm" style={{ color: C.green }}>
-            <li className="flex items-center gap-3"><span>👍</span><span>Nível identificado: <strong>{info.name.split("—")[1]?.trim() || info.name}</strong></span></li>
-            <li className="flex items-center gap-3"><span>📋</span><span>Personalizado com base nas suas respostas</span></li>
-            <li className="flex items-center gap-3"><span>🎯</span><span>Meta: leitura fluente em <strong>{info.weeks} semanas</strong></span></li>
-          </ul>
-          <p className="text-xs mt-3" style={{ color: C.warm }}>Este gráfico é apenas ilustrativo.</p>
-        </div>
-
         <div className="rounded-3xl bg-white p-5" style={{ border: `2px solid ${C.mint}` }}>
           <p style={{ color: C.warm }} className="leading-relaxed">{info.diag}</p>
         </div>
 
         <div className="rounded-3xl p-5" style={{ background: rel.tone === "behind" ? C.redSoft : C.mintLight, border: `2px solid ${rel.tone === "behind" ? C.red : C.mint}` }}>
           <div className="text-xs font-bold tracking-wider mb-2" style={{ color: rel.tone === "behind" ? C.red : C.green }}>POSIÇÃO PARA A IDADE</div>
+          <div className="flex items-baseline gap-2 mb-1">
+            <span className="text-5xl font-extrabold leading-none" style={{ color: rel.tone === "behind" ? C.red : C.green }}>{pct}</span>
+            <span className="text-sm font-semibold" style={{ color: C.warm }}>/ 100 pontos para a idade</span>
+          </div>
           <p className="text-lg font-bold leading-snug" style={{ color: rel.tone === "behind" ? C.red : C.green }}>{relHeadline}</p>
           <p className="text-sm mt-2 leading-relaxed" style={{ color: C.warm }}>{relSub}</p>
         </div>
@@ -1155,7 +1325,40 @@ function ResultScreen({ name, level, answers, age }: { name: string; level: numb
           <h3 className="font-bold mb-3" style={{ color: C.green }}>Habilidades do seu filho</h3>
           <Radar data={skills} />
         </div>
+
+        {nextStep && <NextStepsCard step={nextStep} />}
       </div>
+    </div>
+  );
+}
+
+function NextStepsCard({ step }: { step: NextStep }) {
+  return (
+    <div className="rounded-3xl bg-white p-5" style={{ border: `2px solid ${C.mint}`, boxShadow: `0 12px 30px -20px rgba(26,92,53,0.25)` }}>
+      <div className="text-xs font-bold tracking-wider mb-4" style={{ color: C.green }}>PRÓXIMOS PASSOS</div>
+      <div className="space-y-4">
+        {step.steps.map((s, i) => (
+          <div key={i}>
+            <h4 className="font-bold mb-1" style={{ color: C.green }}>{s.label}</h4>
+            <p className="text-sm leading-relaxed" style={{ color: C.warm }}>{s.text}</p>
+            {s.bullets && (
+              <ul className="mt-2 ml-5 list-disc text-sm space-y-1" style={{ color: C.warm }}>
+                {s.bullets.map((b, j) => (
+                  <li key={j}>{b}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+      <div className="mt-5 rounded-2xl p-4 text-sm font-semibold leading-relaxed" style={{ background: C.mintLight, color: C.green }}>
+        {step.promise}
+      </div>
+      {step.cta && (
+        <p className="text-sm mt-3 leading-relaxed" style={{ color: C.warm }}>
+          👉 Depois, refaça este quiz para avançar de nível e receber novas orientações.
+        </p>
+      )}
     </div>
   );
 }
