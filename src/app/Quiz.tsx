@@ -815,7 +815,7 @@ function ScreenContent(props: any) {
     case "stat": return <StatScreen />;
     case "processing": return <ProcessingScreen name={props.name} />;
     case "result": return <ResultScreen name={props.name} level={props.level} answers={props.answers} age={props.age} />;
-    case "sales": return <SalesRouter answers={props.answers} age={props.age} />;
+    case "sales": return <SalesRouter age={props.age} />;
     default: return null;
   }
 }
@@ -834,34 +834,31 @@ type VslConfig = {
   scriptSrc?: string;      // src do script do player — cole aqui
 };
 
-const SALES_VSL: Record<"behind" | "on" | "ahead", VslConfig> = {
-  behind: {
+const SALES_VSL: Record<"0-3" | "4+", VslConfig> = {
+  // 0 a 3 anos: angulo de comecar cedo / dar vantagem (raramente esta "atrasado").
+  "0-3": {
+    headline: "Os primeiros anos são a base de toda a leitura do seu filho. Veja como começar do jeito certo, desde agora.",
+    revealSeconds: 600,
+    ctaText: "QUERO COMEÇAR CERTO",
+    ctaHref: "#",
+    // playerHtml: '<div id="vid_0_3"></div>',
+    // scriptSrc: 'https://scripts.converteai.net/.../player.js',
+  },
+  // 4 anos ou mais: angulo de atraso / urgencia.
+  "4+": {
     headline: "Existe um motivo científico para o seu filho ainda não ler como deveria, e a solução não está na escola. Está nas suas mãos.",
     revealSeconds: 600,
     ctaText: "QUERO COMEÇAR AGORA",
     ctaHref: "#",
-    // playerHtml: '<div id="vid_BEHIND"></div>',
+    // playerHtml: '<div id="vid_4_mais"></div>',
     // scriptSrc: 'https://scripts.converteai.net/.../player.js',
-  },
-  on: {
-    headline: "Seu filho está no caminho certo. Veja como transformar esse bom momento em leitura fluente.",
-    revealSeconds: 600,
-    ctaText: "QUERO AVANÇAR AGORA",
-    ctaHref: "#",
-  },
-  ahead: {
-    headline: "Seu filho está à frente para a idade. Veja como não desperdiçar esse potencial.",
-    revealSeconds: 600,
-    ctaText: "QUERO POTENCIALIZAR AGORA",
-    ctaHref: "#",
   },
 };
 
-// Escolhe a página de vendas conforme a POSIÇÃO da criança para a idade (behind/on/ahead),
-// que é o que define o estado emocional do pai — o maior driver de conversão.
-function SalesRouter({ answers, age }: { answers: Record<number, number>; age: string }) {
-  const tone = relativeBand(relativeScore(answers, age)).tone;
-  return <VslSalesScreen cfg={SALES_VSL[tone]} />;
+// Escolhe a VSL pela FAIXA DE IDADE: 0-2 e 3 anos -> "0-3"; 4, 5-6 e 7+ -> "4+".
+function SalesRouter({ age }: { age: string }) {
+  const group = age === "0-2" || age === "3" ? "0-3" : "4+";
+  return <VslSalesScreen cfg={SALES_VSL[group]} />;
 }
 
 function VslSalesScreen({ cfg }: { cfg: VslConfig }) {
@@ -936,7 +933,7 @@ function AgeScreen({ onSelect, selected }: { onSelect: (s: string) => void; sele
         <H1>DIAGNÓSTICO DE ALFABETIZAÇÃO</H1>
         <p className="mt-2 text-sm uppercase tracking-widest" style={{ color: C.warm }}>para o seu filho</p>
       </div>
-      <div className="grid grid-cols-2 gap-3 mt-6">
+      <div className="grid grid-cols-2 gap-3 mt-6 max-w-md mx-auto w-full">
         {cards.map((c) => (
           <button
             key={c.id}
