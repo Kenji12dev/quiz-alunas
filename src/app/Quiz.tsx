@@ -237,32 +237,32 @@ const SCREENS: Screen[] = [
 const TOTAL_QUESTIONS = QUESTIONS.length; // 11
 
 const LEVEL_TEXTS: Record<number, { name: string; tagColor: string; diag: string; pitch: string }> = {
-  1: {
-    name: "Nível 1 — Pré-leitor",
+  0: {
+    name: "Nível 0 — Pré-leitor",
     tagColor: "#e89a8c",
     diag: "Seu filho está no início da jornada. E isso é ótimo. Não há atraso — há uma oportunidade enorme de construir uma base sólida desde o começo, do jeito certo.",
     pitch: "Na masterclass você vai aprender exatamente por onde começar, os primeiros sons que ele precisa dominar e como criar uma rotina de 15 minutos que vai funcionar desde o primeiro dia.",
   },
-  2: {
-    name: "Nível 2 — Iniciante",
+  1: {
+    name: "Nível 1 — Iniciante",
     tagColor: "#f0b27a",
     diag: "Seu filho deu o primeiro passo. Agora precisa do método certo para avançar. Reconhecer a letra não é o mesmo que saber o som dela — e essa é a etapa onde a maioria das crianças trava.",
     pitch: "Na masterclass você vai entender o que está faltando para seu filho avançar da fase das letras para a fase da leitura.",
   },
-  3: {
-    name: "Nível 3 — Em desenvolvimento",
+  2: {
+    name: "Nível 2 — Em desenvolvimento",
     tagColor: "#f4d35e",
     diag: "Seu filho está quase lá. Ele só precisa de um empurrão no lugar certo. O desafio agora é a junção: transformar sons em sílabas e sílabas em palavras.",
     pitch: "Na masterclass você vai aprender como guiar seu filho nessa transição com a sequência certa e atividades práticas.",
   },
-  4: {
-    name: "Nível 4 — Leitor em progresso",
+  3: {
+    name: "Nível 3 — Leitor em progresso",
     tagColor: "#a8e0bc",
     diag: "Seu filho já lê. Agora é hora de ganhar fluidez e confiança. Ler soletrando ainda gera frustração — o próximo passo é automatizar o que ele já sabe.",
     pitch: "Na masterclass você vai aprender como ajudar seu filho a passar de leitura lenta para uma leitura fluente.",
   },
-  5: {
-    name: "Nível 5 — Leitor em consolidação",
+  4: {
+    name: "Nível 4 — Leitor em consolidação",
     tagColor: "#1a5c35",
     diag: "Seu filho já é um leitor. Agora vamos consolidar essa habilidade. Os erros pontuais que ainda aparecem têm solução específica.",
     pitch: "Na masterclass você vai aprender como identificar e trabalhar as lacunas específicas do seu filho.",
@@ -471,16 +471,6 @@ function nextStepFor(age: string, answers: Record<number, number>): NextStep | n
   return list[idxMap[tier]] ?? null;
 }
 
-// Placar 0..18: somam apenas as 5 perguntas-métrica (Q1+Q2 vão até 3, Q3+Q4+Q5 até 4).
-// As 6 perguntas seguintes são neutras e não pontuam.
-// Faixas iguais por ora; refinar os cortes testando o quiz.
-function levelFromScore(s: number): number {
-  if (s <= 3) return 1;
-  if (s <= 7) return 2;
-  if (s <= 11) return 3;
-  if (s <= 15) return 4;
-  return 5;
-}
 
 // Nível esperado por idade, por pergunta-métrica [Q1 Alfabeto, Q2 Sons, Q3 Sílabas, Q4 Palavras, Q5 Escrita].
 // Derivado dos popups (ponto onde a frase vira "Isso é o esperado para a idade").
@@ -708,7 +698,7 @@ export default function QuizPage() {
     }, 0),
     [answers]
   );
-  const level = levelFromScore(totalScore || 11);
+  const level = levelTier(totalScore);
 
   const showFooter = [
     "social", "benefit", "name", "whatsapp", "instagram",
@@ -1343,7 +1333,7 @@ function ResultScreen({ name, level, answers, age }: { name: string; level: numb
         <div className="text-2xl md:text-3xl font-bold" style={{ color: C.greenMid }}>{firstName},</div>
         <H1>seu diagnóstico de alfabetização está pronto!</H1>
 
-        <div className="inline-block px-4 py-1.5 rounded-full text-xs font-bold tracking-wider" style={{ background: info.tagColor, color: level >= 5 ? C.white : C.green }}>
+        <div className="inline-block px-4 py-1.5 rounded-full text-xs font-bold tracking-wider" style={{ background: info.tagColor, color: level >= 4 ? C.white : C.green }}>
           {info.name.toUpperCase()}
         </div>
 
