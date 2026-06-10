@@ -567,6 +567,7 @@ export default function QuizPage() {
   const [instagram, setInstagram] = useState("");
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [popup, setPopup] = useState<string | null>(null);
+  const [scrolled, setScrolled] = useState(false); // no resultado, o botão só aparece após rolar
 
   const screen = SCREENS[step];
 
@@ -657,6 +658,9 @@ export default function QuizPage() {
     }
   }, [screen.type]);
 
+  // Ao trocar de tela, volta o estado de scroll (cada tela começa do topo)
+  useEffect(() => { setScrolled(false); }, [step]);
+
   // Total score: sum of all scoring answers (Q8 weights are 0 so safe to include)
   const totalScore = useMemo(
     () => Object.entries(answers).reduce((sum, [k, v]) => {
@@ -713,6 +717,7 @@ export default function QuizPage() {
         <div
           key={step}
           className="absolute inset-0 overflow-y-auto"
+          onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 200)}
           style={{
             animation: `${direction === 1 ? "slideInRight" : "slideInLeft"} 0.42s cubic-bezier(0.22,1,0.36,1)`,
           }}
@@ -731,7 +736,7 @@ export default function QuizPage() {
         </div>
       </div>
 
-      {showFooter && (
+      {showFooter && (screen.type !== "result" || scrolled) && (
         <div
           className="shrink-0 px-4 pt-3 pb-5"
           style={{
@@ -1304,10 +1309,6 @@ function ResultScreen({ name, level, answers, age }: { name: string; level: numb
           {info.name.toUpperCase()}
         </div>
 
-        <div className="rounded-3xl bg-white p-5" style={{ border: `2px solid ${C.mint}` }}>
-          <p style={{ color: C.warm }} className="leading-relaxed">{info.diag}</p>
-        </div>
-
         <div className="rounded-3xl p-5" style={{ background: rel.tone === "behind" ? C.redSoft : C.mintLight, border: `2px solid ${rel.tone === "behind" ? C.red : C.mint}` }}>
           <div className="text-xs font-bold tracking-wider mb-2" style={{ color: rel.tone === "behind" ? C.red : C.green }}>POSIÇÃO PARA A IDADE</div>
           <div className="flex items-baseline gap-2 mb-1">
@@ -1353,7 +1354,7 @@ function NextStepsCard({ step }: { step: NextStep }) {
       </div>
       {step.cta && (
         <p className="text-sm mt-3 leading-relaxed" style={{ color: C.warm }}>
-          👉 Depois, refaça este quiz para avançar de nível e receber novas orientações.
+          👉 Quer ver como aplicar isso em casa, passo a passo e sem montar nada sozinha? Toque no botão abaixo.
         </p>
       )}
     </div>
