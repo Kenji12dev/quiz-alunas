@@ -303,17 +303,26 @@ const NEXT_STEPS: Record<string, NextStep[]> = {
   "0-2": [
     {
       steps: [
-        { label: "Consciência Fonêmica", text: "Agora é hora de ensinar os sonzinhos da fala — um de cada vez. Ensine 1 sonzinho por dia usando as fichas dos sons e transformando isso em brincadeira, para que o aprendizado seja sempre leve e divertido. Diga palavras enfatizando o som inicial e peça para a criança repetir." },
+        { label: "Consciência Fonêmica", text: S_CF },
       ],
-      promise: "Com apenas 15 minutos por dia, seu filho vai aprender todos os sonzinhos em menos de 2 meses.",
+      promise: "Se você fizer 15 minutos por dia, seu filho vai aprender todos os sonzinhos em menos de 2 meses.",
       cta: true,
     },
     {
       steps: [
-        { label: "Consciência Fonêmica", text: "Seu filho já está à frente — vamos aproveitar esse ritmo. Continue ensinando os sonzinhos da fala, 1 por dia, com as fichas dos sons e brincadeiras lúdicas, sempre enfatizando o som inicial das palavras para a criança repetir." },
-        { label: "Princípio Alfabético", text: "Agora dê o próximo passo: mostre que as letras fazem sons. Por exemplo: “A letra F faz o som ‘fff’, como o barulho de assoprar o fogo.”" },
+        { label: "Consciência Fonêmica", text: S_CF },
+        { label: "Princípio Alfabético", text: "Ensine que as letras fazem sons. Por exemplo: “A letra F faz o som ‘fff’, como o de assoprar o fogo.”" },
       ],
-      promise: "Com 15 minutos por dia, em menos de 2 meses seu filho vai dominar todos os sonzinhos e começar a associá-los às letras — o que vai potencializar tanto a leitura quanto a escrita.",
+      promise: "Se você fizer 15 minutos por dia, em menos de 2 meses seu filho vai aprender todos os sonzinhos e relacioná-los às letras. Isso vai potencializar as habilidades de leitura e escrita.",
+      cta: true,
+    },
+    {
+      steps: [
+        { label: "Princípio Alfabético", text: "Ensine que as letras fazem sons, 1 letra por dia. Por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.” Faça isso com todas as letras do alfabeto." },
+        { label: "Leitura", text: "Conforme avança, ensine a juntar os sonzinhos formando sílabas. Comece pelas consoantes de sons longos (v, f, s, z, j, x, l, m, n, r): passe o dedo sobre cada letra pronunciando seu sonzinho devagar e, depois, diga a sílaba/palavra de forma contínua. Em seguida, avance para as consoantes de sons curtos." },
+        { label: "Escrita", text: S_ESCRITA_VELA },
+      ],
+      promise: S_PROMISE_SIMPLES,
       cta: true,
     },
   ],
@@ -335,6 +344,25 @@ const NEXT_STEPS: Record<string, NextStep[]> = {
         { label: "Escrita", text: S_ESCRITA_VELA },
       ],
       promise: S_PROMISE_SIMPLES,
+      cta: true,
+    },
+    {
+      steps: [
+        { label: "Princípio Alfabético", text: S_PA_SIS },
+        { label: "Leitura", text: S_LEITURA_2SIL },
+        { label: "Escrita", text: S_ESCRITA_SACOLA },
+      ],
+      promise: S_PROMISE_AMPLA,
+      cta: true,
+    },
+    {
+      steps: [
+        { label: "Princípio Alfabético", text: S_PA_SIS },
+        { label: "Regras ortográficas", text: "Ensine as relações mais complexas entre letras e sons. Por exemplo, a letra C pode fazer o som “k-k-k” e “sss”. O ensino deve ser explícito e lúdico, 1 regra por semana. Algumas delas:", bullets: ORTHO_RULES },
+        { label: "Leitura", text: "Conforme as regras ortográficas vão sendo ensinadas, pratique a leitura de palavras e pequenos textos. Não force a leitura de palavras complexas antes de ensinar a regra correspondente." },
+        { label: "Escrita", text: "Continue praticando o traçado em letra bastão e cursiva, conforme o padrão, e a escrita de palavras ditadas. Dite palavras cada vez mais complexas à medida que a criança domina as regras ortográficas." },
+      ],
+      promise: "Com 15 minutos por dia, em 4 meses seu filho será capaz de ler e escrever palavras complexas.",
       cta: true,
     },
   ],
@@ -367,6 +395,16 @@ const NEXT_STEPS: Record<string, NextStep[]> = {
         { label: "Escrita", text: "Continue praticando o traçado em letra bastão e cursiva, conforme o padrão, e a escrita de palavras ditadas. Dite palavras cada vez mais complexas à medida que a criança domina as regras ortográficas." },
       ],
       promise: "Com 15 minutos por dia, em 4 meses seu filho será capaz de ler e escrever palavras complexas.",
+      cta: true,
+    },
+    {
+      steps: [
+        { label: "Princípio Alfabético", text: S_PA_SIS },
+        { label: "Regras ortográficas", text: "Continue praticando as relações complexas entre letras e sons. Por exemplo, a letra C pode fazer o som “k-k-k” e “sss”. O ensino deve ser explícito e lúdico; relembre 2 regras por semana. Algumas delas:", bullets: ORTHO_RULES },
+        { label: "Leitura", text: "Continue praticando a escrita de palavras complexas e pratique a leitura oral de textos todos os dias, cuidando da entonação e da prosódia." },
+        { label: "Escrita", text: "Continue praticando o traçado cursivo de cada letra, conforme o padrão. Trabalhe a escrita de pequenos textos pelo menos 3× por semana, com atenção à ortografia e à gramática." },
+      ],
+      promise: "Com 15 minutos por dia, em 3 meses seu filho será capaz de ler e escrever textos com fluência.",
       cta: true,
     },
   ],
@@ -409,7 +447,7 @@ const NEXT_STEPS: Record<string, NextStep[]> = {
         { label: "Escrita", text: "Continue praticando o traçado cursivo de cada letra, conforme o padrão. Trabalhe a escrita de pequenos textos pelo menos 3× por semana, com atenção à ortografia e à gramática." },
       ],
       promise: "Com 15 minutos por dia, em 3 meses seu filho será capaz de ler e escrever textos com fluência.",
-      cta: false,
+      cta: true,
     },
   ],
 };
@@ -418,10 +456,10 @@ NEXT_STEPS["4"] = NEXT_STEPS["3"];
 
 // Para cada idade, qual texto (índice em NEXT_STEPS[idade]) mostrar conforme o nível 0..4.
 const NEXT_STEPS_INDEX: Record<string, number[]> = {
-  "0-2": [0, 1, 1, 1, 1],
-  "3":   [0, 0, 1, 1, 1],
-  "4":   [0, 0, 1, 1, 1],
-  "5-6": [0, 0, 1, 2, 2],
+  "0-2": [0, 1, 1, 2, 2],
+  "3":   [0, 1, 2, 3, 3],
+  "4":   [0, 1, 2, 3, 3],
+  "5-6": [0, 0, 1, 2, 3],
   "7+":  [0, 0, 1, 2, 3],
 };
 
