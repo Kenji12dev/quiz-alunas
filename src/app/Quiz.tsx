@@ -271,7 +271,7 @@ const LEVEL_TEXTS: Record<number, { name: string; tagColor: string; diag: string
 
 // ===== "Próximos passos" — plano de ação por idade × nível =====
 type StepSection = { label: string; text: string; bullets?: string[] };
-type NextStep = { steps: StepSection[]; promise: string; cta?: boolean };
+type NextStep = { steps: StepSection[]; promise?: string; cta?: boolean };
 
 // Trechos reaproveitados entre várias faixas/níveis.
 const S_CF = "Ensine os sonzinhos da fala, 1 por dia, com as fichas dos sons e brincadeiras lúdicas. Diga palavras enfatizando o som inicial e peça para a criança repetir.";
@@ -303,162 +303,277 @@ const NEXT_STEPS: Record<string, NextStep[]> = {
   "0-2": [
     {
       steps: [
-        { label: "Consciência Fonêmica", text: S_CF },
+        {
+          label: "Consciência Fonêmica",
+          text: "Ensinar todos os sonzinhos da fala. Você pode ensinar 1 sonzinho por dia. Utilize as fichas dos sons e faça brincadeiras relacionadas, para que o ensino seja lúdico. Diga palavras dando ênfase no sonzinho inicial, para que a criança repita. Trabalhe as seguintes habilidades:",
+          bullets: [
+            "Identificar o sonzinho inicial das palavras",
+            "Juntar sonzinhos e formar palavras",
+            "Dividir uma palavra em seus sonzinhos",
+            "Manipular sonzinhos entre palavras",
+          ],
+        },
       ],
-      promise: "Se você fizer 15 minutos por dia, seu filho vai aprender todos os sonzinhos em menos de 2 meses.",
+      promise: "Se você fizer 15 minutos por dia, seu filho aprenderá todos os sonzinhos em menos de 3 meses.",
       cta: true,
     },
     {
       steps: [
-        { label: "Consciência Fonêmica", text: S_CF },
-        { label: "Princípio Alfabético", text: "Ensine que as letras fazem sons. Por exemplo: “A letra F faz o som ‘fff’, como o de assoprar o fogo.”" },
+        {
+          label: "Consciência Fonêmica",
+          text: "Ensinar todos os sonzinhos da fala. Você pode ensinar 1 sonzinho por dia. Utilize as fichas dos sons e faça brincadeiras relacionadas, para que o ensino seja lúdico. Diga palavras dando ênfase no sonzinho inicial, para que a criança repita. Trabalhe as seguintes habilidades:",
+          bullets: [
+            "Identificar o sonzinho inicial das palavras",
+            "Juntar sonzinhos e formar palavras",
+            "Dividir uma palavra em seus sonzinhos",
+            "Manipular sonzinhos entre palavras",
+          ],
+        },
+        { label: "Princípio Alfabético", text: "Ensinar que as letras fazem sons. Comece pelas 5 vogais e seus 7 sons orais: A (ááá), E (ééé, êêê), I (iii), O (óóó, ôôô) e U (uuu). Diga, por exemplo: “A letra U faz o som ‘uuuu’, como o macaquinho.”" },
+        { label: "Leitura", text: "Antes de ler, a criança deve saber juntar os sonzinhos por meio das fichas. Comece incentivando a criança a ler palavras formadas somente por vogais: ai, oi, ui, etc. Passe o dedo por cima de cada letra, pronunciando o seu sonzinho vagarosamente; depois, diga a sílaba/palavra formada de forma contínua." },
+        { label: "Escrita", text: "Ensinar o traçado bastão de cada vogal, conforme o padrão. Ensinar a escrever palavrinhas somente com vogais. O adulto deve ditar palavras como “ai, oi, ioiô, ui, eu” e a criança deve ser capaz de escrever." },
       ],
-      promise: "Se você fizer 15 minutos por dia, em menos de 2 meses seu filho vai aprender todos os sonzinhos e relacioná-los às letras. Isso vai potencializar as habilidades de leitura e escrita.",
+      promise: "Se você fizer 15 minutos por dia, seu filho aprenderá todos os sonzinhos e relacionará às letras em menos de 2 meses. Ele também aprenderá a ler e escrever com as vogais.",
       cta: true,
     },
     {
       steps: [
-        { label: "Princípio Alfabético", text: "Ensine que as letras fazem sons, 1 letra por dia. Por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.” Faça isso com todas as letras do alfabeto." },
-        { label: "Leitura", text: "Conforme avança, ensine a juntar os sonzinhos formando sílabas. Comece pelas consoantes de sons longos (v, f, s, z, j, x, l, m, n, r): passe o dedo sobre cada letra pronunciando seu sonzinho devagar e, depois, diga a sílaba/palavra de forma contínua. Em seguida, avance para as consoantes de sons curtos." },
-        { label: "Escrita", text: S_ESCRITA_VELA },
+        {
+          label: "Consciência Fonêmica",
+          text: "Ensinar todos os sonzinhos da fala com as fichas dos sons. Trabalhe as seguintes habilidades:",
+          bullets: [
+            "Identificar o sonzinho inicial das palavras",
+            "Juntar sonzinhos e formar palavras",
+            "Dividir uma palavra em seus sonzinhos",
+            "Manipular sonzinhos entre palavras",
+          ],
+        },
+        { label: "Princípio Alfabético", text: "Relacionar cada sonzinho a uma letra. Ensinar que as letras fazem sons. Diga, por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.”" },
+        { label: "Leitura", text: "A prática diária da leitura é a principal aliada nesse momento. Pratique a leitura de palavras simples. Depois, aumente a dificuldade de forma sistemática. É importante selecionar bem as palavras. Não apresente palavras complexas sem antes ensinar a regra ortográfica. Por exemplo, não apresente a palavra “anjo” se ainda não foi ensinado que a consoante N pode nasalizar o som da vogal A." },
+        { label: "Escrita", text: "Praticar o traçado bastão e cursivo de cada letra, conforme o padrão. Praticar a escrita de palavras ditadas. O adulto deve ditar palavras como “sacola”, pronunciando os sons vagarosamente, e a criança deve ser capaz de escrever." },
       ],
-      promise: S_PROMISE_SIMPLES,
+      promise: "Se você fizer 15 minutos todos os dias, seu filho poderá ser capaz de ler e escrever uma ampla quantidade de palavras em 3 meses.",
+      cta: true,
+    },
+    {
+      steps: [
+        { label: "Princípio Alfabético", text: "Relacionar cada sonzinho a uma letra. Ensinar que as letras fazem sons. Diga, por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.”" },
+        { label: "Regras ortográficas", text: "Ensine as relações complexas entre letras e sons. Por exemplo, a letra C pode fazer o som “k-k-k” e “sss”. O ensino deve ser explícito e lúdico. Ensine 1 regra ortográfica por semana. Algumas estão listadas abaixo:", bullets: ORTHO_RULES },
+        { label: "Leitura", text: "Continue praticando a leitura de palavras simples. À medida que as regras ortográficas são ensinadas, pratique a leitura de palavras complexas e de pequenos textos." },
+      ],
       cta: true,
     },
   ],
   "3": [
     {
       steps: [
-        { label: "Consciência Fonêmica", text: S_CF },
-        { label: "Princípio Alfabético", text: "Mostre que as letras fazem sons. Comece pelas 5 vogais e seus 7 sons orais: A (ááá), E (ééé, êêê), I (iii), O (óóó, ôôô) e U (uuu). Por exemplo: “A letra U faz o som ‘uuuu’, como o macaquinho.”" },
-        { label: "Leitura", text: "Ensine a juntar os sonzinhos formando sílabas. Escreva sílabas com as vogais e ensine a ler. Dê sempre o exemplo e repita o processo: passe o dedo sobre cada letra pronunciando seu sonzinho devagar e, depois, diga a sílaba/palavra de forma contínua." },
-        { label: "Escrita", text: "Ensine o traçado em letra bastão de cada vogal, conforme o padrão, e a escrever palavrinhas só com vogais. Dite palavras como “ai, oi, ioiô, ui, eu” para a criança escrever." },
+        {
+          label: "Consciência Fonêmica",
+          text: "Ensinar todos os sonzinhos da fala. Você pode ensinar 1 sonzinho por dia. Utilize as fichas dos sons e faça brincadeiras relacionadas, para que o ensino seja lúdico. Trabalhe as seguintes habilidades:",
+          bullets: [
+            "Identificar o sonzinho inicial das palavras",
+            "Juntar sonzinhos e formar palavras",
+            "Dividir uma palavra em seus sonzinhos",
+            "Manipular sonzinhos entre palavras",
+          ],
+        },
+        { label: "Princípio Alfabético", text: "Ensinar que as letras fazem sons. Comece pelas 5 vogais e seus 7 sons orais: A (ááá), E (ééé, êêê), I (iii), O (óóó, ôôô) e U (uuu). Diga, por exemplo: “A letra U faz o som ‘uuuu’, como o macaquinho.”" },
+        { label: "Leitura", text: "Antes de ler, a criança deve saber juntar os sonzinhos por meio das fichas. Comece incentivando a criança a ler palavras formadas somente por vogais: ai, oi, ui, etc. Passe o dedo por cima de cada letra, pronunciando o seu sonzinho vagarosamente; depois, diga a sílaba/palavra formada de forma contínua." },
+        { label: "Escrita", text: "Ensinar o traçado bastão de cada vogal, conforme o padrão. Ensinar a escrever palavrinhas somente com vogais. O adulto deve ditar palavras como “ai, oi, ioiô, ui, eu” e a criança deve ser capaz de escrever." },
       ],
-      promise: "Com 15 minutos por dia, em 3 meses seu filho será capaz de ler e escrever com as vogais e conhecerá todos os sonzinhos.",
+      promise: "Se você fizer 15 minutos todos os dias, seu filho poderá ser capaz de ler e escrever com as vogais e conhecerá todos os sonzinhos em 3 meses.",
       cta: true,
     },
     {
       steps: [
-        { label: "Princípio Alfabético", text: "Ensine que as letras fazem sons, 1 letra por dia. Por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.” Faça isso com todas as letras do alfabeto." },
-        { label: "Leitura", text: "Conforme avança, ensine a juntar os sonzinhos formando sílabas. Comece pelas consoantes de sons longos (v, f, s, z, j, x, l, m, n, r): passe o dedo sobre cada letra pronunciando seu sonzinho devagar e, depois, diga a sílaba/palavra de forma contínua. Em seguida, avance para as consoantes de sons curtos." },
-        { label: "Escrita", text: S_ESCRITA_VELA },
+        {
+          label: "Consciência Fonêmica",
+          text: "Ensinar todos os sonzinhos da fala com as fichas dos sons. Trabalhe as seguintes habilidades:",
+          bullets: [
+            "Identificar o sonzinho inicial das palavras",
+            "Juntar sonzinhos e formar palavras",
+            "Dividir uma palavra em seus sonzinhos",
+            "Manipular sonzinhos entre palavras",
+          ],
+        },
+        { label: "Princípio Alfabético", text: "Relacionar cada sonzinho a uma letra. Ensinar que as letras fazem sons. Diga, por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.”" },
+        { label: "Leitura", text: "Antes de ler, a criança deve saber juntar os sonzinhos por meio das fichas. Comece incentivando a criança a ler palavras formadas somente por vogais: ai, oi, ui, etc. Depois, introduza as consoantes, formando sílabas. Passe o dedo por cima de cada letra, pronunciando o seu sonzinho vagarosamente; depois, diga a sílaba/palavra formada de forma contínua." },
+        { label: "Escrita", text: "Ensinar o traçado bastão de cada letra, conforme o padrão. Ensinar a escrever sílabas e, depois, palavrinhas. O adulto deve ditar palavras como “vvvveeeellla”, pronunciando os sons vagarosamente, e a criança deve ser capaz de escrever." },
       ],
-      promise: S_PROMISE_SIMPLES,
+      promise: "Se você fizer 15 minutos todos os dias, seu filho poderá ser capaz de ler e escrever palavras simples em 3 meses.",
       cta: true,
     },
     {
       steps: [
-        { label: "Princípio Alfabético", text: S_PA_SIS },
-        { label: "Leitura", text: S_LEITURA_2SIL },
-        { label: "Escrita", text: S_ESCRITA_SACOLA },
+        {
+          label: "Consciência Fonêmica",
+          text: "Ensinar todos os sonzinhos da fala com as fichas dos sons. Trabalhe as seguintes habilidades:",
+          bullets: [
+            "Identificar o sonzinho inicial das palavras",
+            "Juntar sonzinhos e formar palavras",
+            "Dividir uma palavra em seus sonzinhos",
+            "Manipular sonzinhos entre palavras",
+          ],
+        },
+        { label: "Princípio Alfabético", text: "Relacionar cada sonzinho a uma letra. Ensinar que as letras fazem sons. Diga, por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.”" },
+        { label: "Leitura", text: "A prática diária da leitura é a principal aliada nesse momento. Pratique a leitura de palavras simples. Depois, aumente a dificuldade de forma sistemática. É importante selecionar bem as palavras. Não apresente palavras complexas sem antes ensinar a regra ortográfica. Por exemplo, não apresente a palavra “anjo” se ainda não foi ensinado que a consoante N pode nasalizar o som da vogal A." },
+        { label: "Escrita", text: "Praticar o traçado bastão e cursivo de cada letra, conforme o padrão. Praticar a escrita de palavras ditadas. O adulto deve ditar palavras como “sacola”, pronunciando os sons vagarosamente, e a criança deve ser capaz de escrever." },
       ],
-      promise: S_PROMISE_AMPLA,
+      promise: "Se você fizer 15 minutos todos os dias, seu filho poderá ser capaz de ler e escrever uma ampla quantidade de palavras em 3 meses.",
       cta: true,
     },
     {
       steps: [
-        { label: "Princípio Alfabético", text: S_PA_SIS },
-        { label: "Regras ortográficas", text: "Ensine as relações mais complexas entre letras e sons. Por exemplo, a letra C pode fazer o som “k-k-k” e “sss”. O ensino deve ser explícito e lúdico, 1 regra por semana. Algumas delas:", bullets: ORTHO_RULES },
-        { label: "Leitura", text: "Conforme as regras ortográficas vão sendo ensinadas, pratique a leitura de palavras e pequenos textos. Não force a leitura de palavras complexas antes de ensinar a regra correspondente." },
-        { label: "Escrita", text: "Continue praticando o traçado em letra bastão e cursiva, conforme o padrão, e a escrita de palavras ditadas. Dite palavras cada vez mais complexas à medida que a criança domina as regras ortográficas." },
+        { label: "Princípio Alfabético", text: "Relacionar cada sonzinho a uma letra. Ensinar que as letras fazem sons. Diga, por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.”" },
+        { label: "Regras ortográficas", text: "Ensine as relações complexas entre letras e sons. Por exemplo, a letra C pode fazer o som “k-k-k” e “sss”. O ensino deve ser explícito e lúdico. Ensine 1 regra ortográfica por semana. Algumas estão listadas abaixo:", bullets: ORTHO_RULES },
+        { label: "Leitura", text: "Continue praticando a leitura de palavras simples. À medida que as regras ortográficas são ensinadas, pratique a leitura de palavras complexas e de pequenos textos. Não force que a criança leia palavras complexas sem antes ensinar a regra ortográfica de forma clara." },
+        { label: "Escrita", text: "Continue praticando o traçado bastão e cursivo de cada letra, conforme o padrão. Praticar a escrita de palavras ditadas. O adulto deve ditar palavras mais complexas à medida que a criança aprende as regras ortográficas." },
       ],
-      promise: "Com 15 minutos por dia, em 4 meses seu filho será capaz de ler e escrever palavras complexas.",
+      promise: "Se você fizer 15 minutos todos os dias, seu filho poderá ser capaz de ler e escrever palavras complexas em 3 meses.",
       cta: true,
     },
   ],
   "5-6": [
     {
       steps: [
-        { label: "Consciência Fonêmica", text: S_CF },
-        { label: "Princípio Alfabético", text: S_PA_F },
-        { label: "Leitura", text: "Conforme avança, ensine a juntar os sonzinhos formando sílabas. Comece pelas consoantes de sons longos (v, f, s, z, j, x, l, m, n, r): passe o dedo sobre cada letra pronunciando seu sonzinho devagar e, depois, diga a sílaba/palavra de forma contínua. Em seguida, avance para as consoantes de sons curtos." },
-        { label: "Escrita", text: S_ESCRITA_VELA },
+        {
+          label: "Consciência Fonêmica",
+          text: "Ensinar todos os sonzinhos da fala com as fichas dos sons. Trabalhe as seguintes habilidades:",
+          bullets: [
+            "Identificar o sonzinho inicial das palavras",
+            "Juntar sonzinhos e formar palavras",
+            "Dividir uma palavra em seus sonzinhos",
+            "Manipular sonzinhos entre palavras",
+          ],
+        },
+        { label: "Princípio Alfabético", text: "Relacionar cada sonzinho a uma letra. Ensinar que as letras fazem sons. Diga, por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.”" },
+        { label: "Leitura", text: "Antes de ler, a criança deve saber juntar os sonzinhos por meio das fichas. Comece incentivando a criança a ler palavras formadas somente por vogais: ai, oi, ui, etc. Depois, introduza as consoantes, formando sílabas. Passe o dedo por cima de cada letra, pronunciando o seu sonzinho vagarosamente; depois, diga a sílaba/palavra formada de forma contínua." },
+        { label: "Escrita", text: "Ensinar o traçado bastão de cada letra, conforme o padrão. Ensinar a escrever sílabas e, depois, palavrinhas. O adulto deve ditar palavras como “vvvveeeellla”, pronunciando os sons vagarosamente, e a criança deve ser capaz de escrever." },
       ],
-      promise: S_PROMISE_SIMPLES,
+      promise: "Se você fizer 15 minutos todos os dias, seu filho poderá ser capaz de ler e escrever palavras simples em 3 meses.",
       cta: true,
     },
     {
       steps: [
-        { label: "Consciência Fonêmica", text: S_CF },
-        { label: "Princípio Alfabético", text: S_PA_SIS },
-        { label: "Leitura", text: S_LEITURA_2SIL },
-        { label: "Escrita", text: S_ESCRITA_SACOLA },
+        {
+          label: "Consciência Fonêmica",
+          text: "Ensinar todos os sonzinhos da fala com as fichas dos sons. Trabalhe as seguintes habilidades:",
+          bullets: [
+            "Identificar o sonzinho inicial das palavras",
+            "Juntar sonzinhos e formar palavras",
+            "Dividir uma palavra em seus sonzinhos",
+            "Manipular sonzinhos entre palavras",
+          ],
+        },
+        { label: "Princípio Alfabético", text: "Relacionar cada sonzinho a uma letra. Ensinar que as letras fazem sons. Diga, por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.”" },
+        { label: "Leitura", text: "A prática diária da leitura é a principal aliada nesse momento. Pratique a leitura de palavras simples. Depois, aumente a dificuldade de forma sistemática. É importante selecionar bem as palavras. Não apresente palavras complexas sem antes ensinar a regra ortográfica. Por exemplo, não apresente a palavra “anjo” se ainda não foi ensinado que a consoante N pode nasalizar o som da vogal A." },
+        { label: "Escrita", text: "Praticar o traçado bastão e cursivo de cada letra, conforme o padrão. Praticar a escrita de palavras ditadas. O adulto deve ditar palavras como “sacola”, pronunciando os sons vagarosamente, e a criança deve ser capaz de escrever." },
       ],
-      promise: S_PROMISE_AMPLA,
+      promise: "Se você fizer 15 minutos todos os dias, seu filho poderá ser capaz de ler e escrever uma ampla quantidade de palavras em 3 meses.",
       cta: true,
     },
     {
       steps: [
-        { label: "Princípio Alfabético", text: S_PA_SIS },
-        { label: "Regras ortográficas", text: "Ensine as relações mais complexas entre letras e sons. Por exemplo, a letra C pode fazer o som “k-k-k” e “sss”. O ensino deve ser explícito e lúdico, 1 regra por semana. Algumas delas:", bullets: ORTHO_RULES },
-        { label: "Leitura", text: "Conforme as regras ortográficas vão sendo ensinadas, pratique a leitura de palavras e pequenos textos. Não force a leitura de palavras complexas antes de ensinar a regra correspondente." },
-        { label: "Escrita", text: "Continue praticando o traçado em letra bastão e cursiva, conforme o padrão, e a escrita de palavras ditadas. Dite palavras cada vez mais complexas à medida que a criança domina as regras ortográficas." },
+        { label: "Princípio Alfabético", text: "Relacionar cada sonzinho a uma letra. Ensinar que as letras fazem sons. Diga, por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.”" },
+        { label: "Regras ortográficas", text: "Ensine as relações complexas entre letras e sons. Por exemplo, a letra C pode fazer o som “k-k-k” e “sss”. O ensino deve ser explícito e lúdico. Ensine 1 regra ortográfica por semana. Algumas estão listadas abaixo:", bullets: ORTHO_RULES },
+        { label: "Leitura", text: "Continue praticando a leitura de palavras simples. À medida que as regras ortográficas são ensinadas, pratique a leitura de palavras complexas e de pequenos textos. Não force que a criança leia palavras complexas sem antes ensinar a regra ortográfica de forma clara." },
+        { label: "Escrita", text: "Continue praticando o traçado bastão e cursivo de cada letra, conforme o padrão. Praticar a escrita de palavras ditadas. O adulto deve ditar palavras mais complexas à medida que a criança aprende as regras ortográficas." },
       ],
-      promise: "Com 15 minutos por dia, em 4 meses seu filho será capaz de ler e escrever palavras complexas.",
+      promise: "Se você fizer 15 minutos todos os dias, seu filho poderá ser capaz de ler e escrever palavras complexas em 3 meses.",
       cta: true,
     },
     {
       steps: [
-        { label: "Princípio Alfabético", text: S_PA_SIS },
-        { label: "Regras ortográficas", text: "Continue praticando as relações complexas entre letras e sons. Por exemplo, a letra C pode fazer o som “k-k-k” e “sss”. O ensino deve ser explícito e lúdico; relembre 2 regras por semana. Algumas delas:", bullets: ORTHO_RULES },
-        { label: "Leitura", text: "Continue praticando a escrita de palavras complexas e pratique a leitura oral de textos todos os dias, cuidando da entonação e da prosódia." },
-        { label: "Escrita", text: "Continue praticando o traçado cursivo de cada letra, conforme o padrão. Trabalhe a escrita de pequenos textos pelo menos 3× por semana, com atenção à ortografia e à gramática." },
+        { label: "Princípio Alfabético", text: "Relacionar cada sonzinho a uma letra. Ensinar que as letras fazem sons. Diga, por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.”" },
+        { label: "Regras ortográficas", text: "Continue praticando as relações complexas entre letras e sons. Por exemplo, a letra C pode fazer o som “k-k-k” e “sss”. O ensino deve ser explícito e lúdico. Relembre 2 regras ortográficas por semana. Algumas estão listadas abaixo:", bullets: ORTHO_RULES },
+        { label: "Leitura", text: "A criança deve alcançar a prosódia, a velocidade e a fluência na leitura. Para isso, continue praticando a leitura de palavras complexas. Pratique a leitura oral de textos todos os dias. A leitura repetida é uma aliada nesse momento, auxiliando a criança a tornar a leitura automática." },
+        { label: "Escrita", text: "Continue praticando o traçado cursivo de cada letra, conforme o padrão. Trabalhe a escrita de pequenos textos, pelo menos 3× por semana, prezando pela ortografia e gramática." },
       ],
-      promise: "Com 15 minutos por dia, em 3 meses seu filho será capaz de ler e escrever textos com fluência.",
+      promise: "Se você fizer 15 minutos todos os dias, seu filho poderá ser capaz de ler com fluência, velocidade e prosódia e de escrever pequenos textos em 3 meses.",
       cta: true,
     },
   ],
   "7+": [
     {
       steps: [
-        { label: "Consciência Fonêmica", text: S_CF },
-        { label: "Princípio Alfabético", text: S_PA_F },
-        { label: "Leitura", text: "Ensine a juntar os sonzinhos formando sílabas. Comece pelas consoantes de sons longos (v, f, s, z, j, x, l, m, n, r): passe o dedo sobre cada letra pronunciando seu sonzinho devagar e, depois, diga a sílaba/palavra de forma contínua. Em seguida, avance para as consoantes de sons curtos." },
-        { label: "Escrita", text: S_ESCRITA_VELA },
+        {
+          label: "Consciência Fonêmica",
+          text: "Ensinar todos os sonzinhos da fala com as fichas dos sons. Trabalhe as seguintes habilidades:",
+          bullets: [
+            "Identificar o sonzinho inicial das palavras",
+            "Juntar sonzinhos e formar palavras",
+            "Dividir uma palavra em seus sonzinhos",
+            "Manipular sonzinhos entre palavras",
+          ],
+        },
+        { label: "Princípio Alfabético", text: "Relacionar cada sonzinho a uma letra. Ensinar que as letras fazem sons. Diga, por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.”" },
+        { label: "Leitura", text: "Antes de ler, a criança deve saber juntar os sonzinhos por meio das fichas. Comece incentivando a criança a ler palavras formadas somente por vogais: ai, oi, ui, etc. Depois, introduza as consoantes, formando sílabas. Passe o dedo por cima de cada letra, pronunciando o seu sonzinho vagarosamente; depois, diga a sílaba/palavra formada de forma contínua." },
+        { label: "Escrita", text: "Ensinar o traçado bastão de cada letra, conforme o padrão. Ensinar a escrever sílabas e, depois, palavrinhas. O adulto deve ditar palavras como “vvvveeeellla”, pronunciando os sons vagarosamente, e a criança deve ser capaz de escrever." },
       ],
-      promise: S_PROMISE_SIMPLES,
+      promise: "Se você fizer 15 minutos todos os dias, seu filho poderá ser capaz de ler e escrever palavras simples em 3 meses.",
       cta: true,
     },
     {
       steps: [
-        { label: "Consciência Fonêmica", text: S_CF },
-        { label: "Princípio Alfabético", text: S_PA_SIS },
-        { label: "Leitura", text: S_LEITURA_2SIL },
-        { label: "Escrita", text: S_ESCRITA_SACOLA },
+        {
+          label: "Consciência Fonêmica",
+          text: "Ensinar todos os sonzinhos da fala com as fichas dos sons. Trabalhe as seguintes habilidades:",
+          bullets: [
+            "Identificar o sonzinho inicial das palavras",
+            "Juntar sonzinhos e formar palavras",
+            "Dividir uma palavra em seus sonzinhos",
+            "Manipular sonzinhos entre palavras",
+          ],
+        },
+        { label: "Princípio Alfabético", text: "Relacionar cada sonzinho a uma letra. Ensinar que as letras fazem sons. Diga, por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.”" },
+        { label: "Leitura", text: "A prática diária da leitura é a principal aliada nesse momento. Pratique a leitura de palavras simples. Depois, aumente a dificuldade de forma sistemática. É importante selecionar bem as palavras. Não apresente palavras complexas sem antes ensinar a regra ortográfica. Por exemplo, não apresente a palavra “anjo” se ainda não foi ensinado que a consoante N pode nasalizar o som da vogal A." },
+        { label: "Escrita", text: "Praticar o traçado bastão e cursivo de cada letra, conforme o padrão. Praticar a escrita de palavras ditadas. O adulto deve ditar palavras como “sacola”, pronunciando os sons vagarosamente, e a criança deve ser capaz de escrever." },
       ],
-      promise: S_PROMISE_AMPLA,
+      promise: "Se você fizer 15 minutos todos os dias, seu filho poderá ser capaz de ler e escrever uma ampla quantidade de palavras em 3 meses.",
       cta: true,
     },
     {
       steps: [
-        { label: "Princípio Alfabético", text: S_PA_SIS },
-        { label: "Regras ortográficas", text: "Ensine as relações mais complexas entre letras e sons. Por exemplo, a letra C pode fazer o som “k-k-k” e “sss”. O ensino deve ser explícito e lúdico, 1 regra por semana. Algumas delas:", bullets: ORTHO_RULES },
-        { label: "Leitura", text: "Conforme as regras ortográficas vão sendo ensinadas, pratique a leitura de palavras e pequenos textos. Não force a leitura de palavras complexas antes de ensinar a regra correspondente." },
-        { label: "Escrita", text: "Continue praticando o traçado em letra bastão e cursiva, conforme o padrão, e a escrita de palavras ditadas. Dite palavras cada vez mais complexas à medida que a criança domina as regras ortográficas." },
+        { label: "Princípio Alfabético", text: "Relacionar cada sonzinho a uma letra. Ensinar que as letras fazem sons. Diga, por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.”" },
+        { label: "Regras ortográficas", text: "Ensine as relações complexas entre letras e sons. Por exemplo, a letra C pode fazer o som “k-k-k” e “sss”. O ensino deve ser explícito e lúdico. Ensine 1 regra ortográfica por semana. Algumas estão listadas abaixo:", bullets: ORTHO_RULES },
+        { label: "Leitura", text: "Continue praticando a leitura de palavras simples. À medida que as regras ortográficas são ensinadas, pratique a leitura de palavras complexas e de pequenos textos. Não force que a criança leia palavras complexas sem antes ensinar a regra ortográfica de forma clara." },
+        { label: "Escrita", text: "Continue praticando o traçado bastão e cursivo de cada letra, conforme o padrão. Praticar a escrita de palavras ditadas. O adulto deve ditar palavras mais complexas à medida que a criança aprende as regras ortográficas." },
       ],
-      promise: "Com 15 minutos por dia, em 3 meses seu filho será capaz de ler e escrever palavras complexas.",
+      promise: "Se você fizer 15 minutos todos os dias, seu filho poderá ser capaz de ler e escrever palavras complexas em 3 meses.",
       cta: true,
     },
     {
       steps: [
-        { label: "Princípio Alfabético", text: S_PA_SIS },
-        { label: "Regras ortográficas", text: "Continue praticando as relações complexas entre letras e sons. Por exemplo, a letra C pode fazer o som “k-k-k” e “sss”. O ensino deve ser explícito e lúdico; relembre 2 regras por semana. Algumas delas:", bullets: ORTHO_RULES },
-        { label: "Leitura", text: "Continue praticando a escrita de palavras complexas e pratique a leitura oral de textos todos os dias, cuidando da entonação e da prosódia." },
-        { label: "Escrita", text: "Continue praticando o traçado cursivo de cada letra, conforme o padrão. Trabalhe a escrita de pequenos textos pelo menos 3× por semana, com atenção à ortografia e à gramática." },
+        { label: "Princípio Alfabético", text: "Relacionar cada sonzinho a uma letra. Ensinar que as letras fazem sons. Diga, por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.”" },
+        { label: "Regras ortográficas", text: "Continue praticando as relações complexas entre letras e sons. Por exemplo, a letra C pode fazer o som “k-k-k” e “sss”. O ensino deve ser explícito e lúdico. Relembre 2 regras ortográficas por semana. Algumas estão listadas abaixo:", bullets: ORTHO_RULES },
+        { label: "Leitura", text: "A criança deve alcançar a prosódia, a velocidade e a fluência na leitura. Para isso, continue praticando a leitura de palavras complexas. Pratique a leitura oral de textos todos os dias. A leitura repetida é uma aliada nesse momento, auxiliando a criança a tornar a leitura automática." },
+        { label: "Escrita", text: "Continue praticando o traçado cursivo de cada letra, conforme o padrão. Trabalhe a escrita de pequenos textos, pelo menos 3× por semana, prezando pela ortografia e gramática." },
       ],
-      promise: "Com 15 minutos por dia, em 3 meses seu filho será capaz de ler e escrever textos com fluência.",
+      promise: "Se você fizer 15 minutos todos os dias, seu filho poderá ser capaz de ler com fluência, velocidade e prosódia e de escrever pequenos textos em 3 meses.",
       cta: true,
     },
   ],
 };
-// Faixa "4" usa o mesmo plano da faixa "3".
-NEXT_STEPS["4"] = NEXT_STEPS["3"];
+// Faixa "4" reusa os 4 planos da faixa "3" e adiciona um 5º plano (consolidação/fluência) só para o nível mais avançado.
+NEXT_STEPS["4"] = [
+  ...NEXT_STEPS["3"],
+  {
+    steps: [
+      { label: "Princípio Alfabético", text: "Relacionar cada sonzinho a uma letra. Ensinar que as letras fazem sons. Diga, por exemplo: “A letra F faz o som ‘fff’, como o de apagar o fogo.”" },
+      { label: "Regras ortográficas", text: "Continue praticando as relações complexas entre letras e sons. Por exemplo, a letra C pode fazer o som “k-k-k” e “sss”. O ensino deve ser explícito e lúdico. Relembre 2 regras ortográficas por semana. Algumas estão listadas abaixo:", bullets: ORTHO_RULES },
+      { label: "Leitura", text: "A criança deve alcançar a prosódia, a velocidade e a fluência na leitura. Para isso, continue praticando a leitura de palavras complexas. Pratique a leitura oral de textos todos os dias. A leitura repetida é uma aliada nesse momento, auxiliando a criança a tornar a leitura automática." },
+      { label: "Escrita", text: "Continue praticando o traçado cursivo de cada letra, conforme o padrão. Trabalhe a escrita de pequenos textos, pelo menos 3× por semana, prezando pela ortografia e gramática." },
+    ],
+    promise: "Se você fizer 15 minutos todos os dias, seu filho poderá ser capaz de ler com fluência, velocidade e prosódia e de escrever pequenos textos em 3 meses.",
+    cta: true,
+  },
+];
 
 // Para cada idade, qual texto (índice em NEXT_STEPS[idade]) mostrar conforme o nível 0..4.
 const NEXT_STEPS_INDEX: Record<string, number[]> = {
-  "0-2": [0, 1, 1, 2, 2],
+  "0-2": [0, 1, 1, 2, 3],
   "3":   [0, 1, 2, 3, 3],
-  "4":   [0, 1, 2, 3, 3],
+  "4":   [1, 1, 2, 3, 4],
   "5-6": [0, 0, 1, 2, 3],
   "7+":  [0, 0, 1, 2, 3],
 };
@@ -1377,9 +1492,11 @@ function NextStepsCard({ step }: { step: NextStep }) {
           </div>
         ))}
       </div>
-      <div className="mt-5 rounded-2xl p-4 text-sm font-semibold leading-relaxed" style={{ background: C.mintLight, color: C.green }}>
-        {step.promise}
-      </div>
+      {step.promise && (
+        <div className="mt-5 rounded-2xl p-4 text-sm font-semibold leading-relaxed" style={{ background: C.mintLight, color: C.green }}>
+          {step.promise}
+        </div>
+      )}
       {step.cta && (
         <p className="text-sm mt-3 leading-relaxed" style={{ color: C.warm }}>
           👉 Quer ver como aplicar isso em casa, passo a passo e sem montar nada sozinha? Toque no botão abaixo.
