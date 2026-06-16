@@ -230,8 +230,7 @@ const SCREENS: Screen[] = [
   { type: "question", qIndex: 9 },   // 18 — Q10
   { type: "question", qIndex: 10 },  // 19 — Q11
   { type: "processing" },            // 20
-  { type: "result" },                // 21
-  { type: "sales" },                 // 22
+  { type: "result" },                // 21 — última tela (versão alunas: sem pitch)
 ];
 
 const TOTAL_QUESTIONS = QUESTIONS.length; // 11
@@ -710,7 +709,6 @@ export default function QuizPage() {
   const [instagram, setInstagram] = useState("");
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [popup, setPopup] = useState<string | null>(null);
-  const [scrolled, setScrolled] = useState(false); // no resultado, o botão só aparece após rolar
 
   const screen = SCREENS[step];
 
@@ -801,8 +799,6 @@ export default function QuizPage() {
     }
   }, [screen.type]);
 
-  // Ao trocar de tela, volta o estado de scroll (cada tela começa do topo)
-  useEffect(() => { setScrolled(false); }, [step]);
 
   // Total score: sum of all scoring answers (Q8 weights are 0 so safe to include)
   const totalScore = useMemo(
@@ -860,7 +856,6 @@ export default function QuizPage() {
         <div
           key={step}
           className="absolute inset-0 overflow-y-auto"
-          onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 200)}
           style={{
             animation: `${direction === 1 ? "slideInRight" : "slideInLeft"} 0.42s cubic-bezier(0.22,1,0.36,1)`,
           }}
@@ -879,7 +874,7 @@ export default function QuizPage() {
         </div>
       </div>
 
-      {showFooter && (screen.type !== "result" || scrolled) && (
+      {showFooter && screen.type !== "result" && (
         <div
           className="shrink-0 px-4 pt-3 pb-5"
           style={{
@@ -896,9 +891,7 @@ export default function QuizPage() {
             color="brand"
             rightSection={<IconArrowRight size={20} />}
           >
-            {screen.type === "interstitial2" ? "Entendi"
-              : screen.type === "result" ? "Ver o próximo passo"
-              : "Continuar"}
+            {screen.type === "interstitial2" ? "Entendi" : "Continuar"}
           </Button>
         </div>
       )}
@@ -1496,11 +1489,6 @@ function NextStepsCard({ step }: { step: NextStep }) {
         <div className="mt-5 rounded-2xl p-4 text-sm font-semibold leading-relaxed" style={{ background: C.mintLight, color: C.green }}>
           {step.promise}
         </div>
-      )}
-      {step.cta && (
-        <p className="text-sm mt-3 leading-relaxed" style={{ color: C.warm }}>
-          👉 Quer ver como aplicar isso em casa, passo a passo e sem montar nada sozinha? Toque no botão abaixo.
-        </p>
       )}
     </div>
   );
